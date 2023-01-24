@@ -33,7 +33,7 @@ impl IpStuff {
     }
 }
 
-#[actix_web::main] // or #[tokio::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     let config = IpStuff::new();
 
