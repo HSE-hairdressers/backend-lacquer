@@ -1,0 +1,16 @@
+version: "3.4"
+
+services:
+  app:
+    container_name: app
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - IP_ADDRESS=77.91.78.24
+      - PORT=8011
+    ports:
+      - "8011:8011"
+    volumes:
+      - ./volumes/app-data:/app/project
+
