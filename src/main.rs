@@ -1,5 +1,7 @@
+pub mod utils;
+
+use utils::ipstuff::IpAndPort;
 use actix_web::{get, web, App, HttpServer, Responder, post, HttpResponse};
-use std::env;
 
 #[get("/hello")]
 async fn hello() -> impl Responder {
@@ -17,36 +19,9 @@ async fn echo(req_body: String) -> impl Responder {
 }
 
 
-struct IpStuff {
-    ip: String,
-    port: u16,
-}
-
-impl IpStuff {
-    fn new() -> Self {
-        let mut res = IpStuff::default();
-        if let Ok(a) = env::var("IP_ADDRESS") {
-            res.ip = a;
-        }
-        if let Ok(a) = env::var("PORT") {
-            if let Ok(b) = a.parse() {
-                res.port = b;
-            }
-        }
-        res
-    } 
-
-    fn default() -> Self {
-        IpStuff{ 
-            ip: "localhost".to_string(), 
-            port: 8011,
-        }
-    }
-}
-
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let config = IpStuff::new();
+    let config = IpAndPort::new();
 
     HttpServer::new(|| {
         App::new().service(greet).service(hello).service(echo)
