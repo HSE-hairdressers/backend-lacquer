@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
       context: .
     environment:
-      - IP_ADDRESS=77.91.78.24
+      - IP_ADDRESS=0.0.0.0
       - PORT=8011
     ports:
       - "8011:8011"
