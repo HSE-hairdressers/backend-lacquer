@@ -11,20 +11,31 @@ struct IpStuff {
     port: u16,
 }
 
+impl IpStuff {
+    fn new() -> Self {
+        let mut res = IpStuff::default();
+        if let Ok(a) = env::var("IP_ADDRESS") {
+            res.ip = a;
+        }
+        if let Ok(a) = env::var("PORT") {
+            if let Ok(b) = a.parse() {
+                res.port = b;
+            }
+        }
+        res
+    } 
+
+    fn default() -> Self {
+        IpStuff{ 
+            ip: "localhost".to_string(), 
+            port: 8011,
+        }
+    }
+}
+
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
-
-
-
-    let _ip = match env::var("IP_ADDRESS") {
-        Ok(v) => v,
-        Err(_) => panic!("$IP_ADDRESS is not set"),
-    };
-    let _port = match env::var("PORT") {
-        Ok(v) => v,
-        Err(_) => panic!("$PORT is not set"),
-    };
-    let config = IpStuff { ip: _ip, port: _port.parse().unwrap()};
+    let config = IpStuff::new();
 
     HttpServer::new(|| {
         App::new().service(greet)
