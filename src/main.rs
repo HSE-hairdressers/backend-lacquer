@@ -39,7 +39,7 @@ async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         while let Some(chunk) = field.next().await {
             // println!("-- CHUNK: \n{:?}", std::str::from_utf8(&chunk?));
             file = web::block(move || {
-                file.write_all(if let Some(f) = &chunk.ok() { f } else { &[0] })
+                file.write_all(&chunk.ok().unwrap_or_default())
                     .map(|_| file)
             })
             .await??
