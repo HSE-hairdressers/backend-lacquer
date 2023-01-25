@@ -17,13 +17,12 @@ impl IpAndPort {
             }
         }
         res
-    } 
+    }
 
     fn default() -> Self {
-        IpAndPort{ 
-            ip: "localhost".to_string(), 
+        IpAndPort {
+            ip: "localhost".to_string(),
             port: 8011,
         }
     }
 }
-
