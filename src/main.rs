@@ -13,6 +13,7 @@ use uuid::Uuid;
 
 #[derive(Serialize)]
 struct SystemInfo {
+    name: String,
     version: String,
 }
 
