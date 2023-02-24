@@ -24,7 +24,10 @@ struct Photo {
 
 impl Photo {
     fn new(name: String, binary: Vec<u8>) -> Self {
-        Photo { name: (name), binary: (binary) }
+        Photo {
+            name: (name),
+            binary: (binary),
+        }
     }
 }
 
@@ -32,30 +35,37 @@ impl Photo {
 struct Hairdresser {
     name: String,
     num: String,
-    addr: String, 
+    addr: String,
     company: String,
 }
 
 impl Hairdresser {
     fn new(name: String, phone_number: String, address: String, company: String) -> Self {
-        Hairdresser { name: (name), num: (phone_number), addr: (address), company: (company) }
+        Hairdresser {
+            name: (name),
+            num: (phone_number),
+            addr: (address),
+            company: (company),
+        }
     }
 }
 
-
 #[derive(Serialize)]
 struct UserImageResponse {
-    hairdresser_name: Hairdresser, 
+    hairdresser_name: Hairdresser,
     images: Vec<Photo>,
     result: String,
 }
 
 impl UserImageResponse {
     fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
-        UserImageResponse { hairdresser_name: (h_name), images: (images), result: ("Ok".to_string()) } 
+        UserImageResponse {
+            hairdresser_name: (h_name),
+            images: (images),
+            result: ("Ok".to_string()),
+        }
     }
 }
-
 
 #[get("/hello")]
 async fn hello() -> impl Responder {
@@ -105,14 +115,24 @@ async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
-    let filepath = format!("./test.jpeg");
-    let hairdresser_name = String::from("Khadiev Edem");
+    let hairdresser = Hairdresser::new(
+        "Khadiev Edem".to_string(),
+        "+7 999 123 45 67".to_string(),
+        "NN, Test st., 100100".to_string(),
+        "HSE-hairdressers".to_string(),
+    );
 
-    let mut images: Vec<Vec<u8>> = Vec::new();
-    let image = web::block(|| std::fs::read(filepath)).await??;
-    images.push(image);
+    let filename = "test.jpeg";
+    let filepath = format!("./{filename}");
+    let photo = Photo::new(
+        filename.to_string(),
+        web::block(|| std::fs::read(filepath)).await??,
+    );
 
-    let response = UserImageResponse::new(hairdresser_name, images);
+    let mut photos: Vec<Photo> = Vec::new();
+    photos.push(photo);
+
+    let response = UserImageResponse::new(hairdresser, photos);
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
