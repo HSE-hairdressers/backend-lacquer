@@ -52,7 +52,7 @@ impl Hairdresser {
 
 #[derive(Serialize)]
 struct UserImageResponse {
-    hairdresser_name: Hairdresser,
+    hairdresser: Hairdresser,
     images: Vec<Photo>,
     result: String,
 }
@@ -60,7 +60,7 @@ struct UserImageResponse {
 impl UserImageResponse {
     fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
         UserImageResponse {
-            hairdresser_name: (h_name),
+            hairdresser: (h_name),
             images: (images),
             result: ("Ok".to_string()),
         }
