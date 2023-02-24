@@ -1,5 +1,5 @@
 [package]
-name = "template-actix-app"
+name = "backend-lacquer"
 version = "0.1.0"
 edition = "2021"
 

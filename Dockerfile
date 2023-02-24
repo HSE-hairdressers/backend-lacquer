@@ -11,10 +11,10 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY . .
-RUN cargo build --release --bin template-actix-app
+RUN cargo build --release --bin backend-lacquer
 
 # We do not need the Rust toolchain to run the binary!
 FROM debian:buster-slim AS runtime
 WORKDIR app
-COPY --from=builder /app/target/release/template-actix-app /usr/local/bin
-ENTRYPOINT ["/usr/local/bin/template-actix-app"]
+COPY --from=builder /app/target/release/backend-lacquer /usr/local/bin
+ENTRYPOINT ["/usr/local/bin/backend-lacquer"]
