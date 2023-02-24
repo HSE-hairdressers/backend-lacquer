@@ -22,6 +22,12 @@ struct Photo {
     binary: Vec<u8>,
 }
 
+impl Photo {
+    fn new(name: String, binary: Vec<u8>) -> Self {
+        Photo { name: (name), binary: (binary) }
+    }
+}
+
 #[derive(Serialize)]
 struct Hairdresser {
     name: String,
