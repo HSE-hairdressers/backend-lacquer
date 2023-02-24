@@ -64,9 +64,12 @@ async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
+    let filepath = format!("./test.jpeg");
+    let file = web::block(|| std::fs::read(filepath)).await??;
+
     Ok(HttpResponse::Ok()
-        .content_type(ContentType::plaintext())
-        .body("Ok")
+        .content_type(ContentType::jpeg())
+        .body(file)
         .into())
 }
 
