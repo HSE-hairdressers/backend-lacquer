@@ -16,6 +16,20 @@ struct SystemInfo {
     version: String,
 }
 
+#[derive(Serialize)]
+struct UserImageResponse {
+    hairdresser_name: String, 
+    images: Vec<Vec<u8>>,
+    result: String,
+}
+
+impl UserImageResponse {
+    fn new(h_name: String, images: Vec<Vec<u8>>) -> Self {
+        UserImageResponse { hairdresser_name: (h_name), images: (images), result: ("Ok".to_string()) } 
+    }
+}
+
+
 #[get("/hello")]
 async fn hello() -> impl Responder {
     "Hello World!".to_string()
@@ -65,11 +79,17 @@ async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     }
 
     let filepath = format!("./test.jpeg");
-    let file = web::block(|| std::fs::read(filepath)).await??;
+    let hairdresser_name = String::from("Khadiev Edem");
+
+    let mut images: Vec<Vec<u8>> = Vec::new();
+    let image = web::block(|| std::fs::read(filepath)).await??;
+    images.push(image);
+
+    let response = UserImageResponse::new(hairdresser_name, images);
 
     Ok(HttpResponse::Ok()
-        .content_type(ContentType::jpeg())
-        .body(file)
+        .content_type(ContentType::json())
+        .json(response)
         .into())
 }
 
