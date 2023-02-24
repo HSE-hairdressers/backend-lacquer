@@ -11,8 +11,9 @@ use std::io::Write;
 use utils::ipstuff::IpAndPort;
 use uuid::Uuid;
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 struct SystemInfo {
+    name: String,
     version: String,
 }
 
@@ -79,13 +80,17 @@ async fn greet(name: web::Path<String>) -> impl Responder {
 
 #[get("/system/info")]
 async fn sys_info() -> impl Responder {
-    let mut resp: Vec<SystemInfo> = Vec::new();
+    let mut info = SystemInfo::default();
 
-    resp.push(SystemInfo {
-        version: "0.0.1".to_string(),
-    });
-
-    return web::Json(resp);
+    for line in std::fs::read_to_string("./Cargo.toml").unwrap().split("\n") {
+        if line.contains("name =") {
+            info.name = line.replace("name = ", "").replace("\"", "");
+        } else if line.contains("version = ") {
+            info.version = line.replace("version = ", "").replace("\"", "");
+            break;
+        }
+    }
+    return web::Json(info);
 }
 
 #[post("/img")]
