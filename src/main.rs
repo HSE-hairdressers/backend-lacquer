@@ -17,14 +17,21 @@ struct SystemInfo {
 }
 
 #[derive(Serialize)]
+struct Photo {
+    name: String,
+    binary: Vec<u8>,
+}
+
+
+#[derive(Serialize)]
 struct UserImageResponse {
-    hairdresser_name: String, 
-    images: Vec<Vec<u8>>,
+    hairdresser_name: Hairdresser, 
+    images: Vec<Photo>,
     result: String,
 }
 
 impl UserImageResponse {
-    fn new(h_name: String, images: Vec<Vec<u8>>) -> Self {
+    fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
         UserImageResponse { hairdresser_name: (h_name), images: (images), result: ("Ok".to_string()) } 
     }
 }
