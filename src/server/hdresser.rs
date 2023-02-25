@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 #[derive(Serialize)]
 pub struct Hairdresser {
     pub name: String,
