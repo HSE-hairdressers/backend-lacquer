@@ -1,4 +1,5 @@
 pub mod utils;
+pub mod server;
 
 use actix_multipart::Multipart;
 use actix_web::{
@@ -6,67 +7,10 @@ use actix_web::{
     Result,
 };
 use futures_util::StreamExt as _;
-use serde::Serialize;
 use std::io::Write;
 use utils::ipstuff::IpAndPort;
 use uuid::Uuid;
-
-#[derive(Serialize, Default)]
-struct SystemInfo {
-    name: String,
-    version: String,
-}
-
-#[derive(Serialize)]
-struct Photo {
-    name: String,
-    binary: Vec<u8>,
-}
-
-impl Photo {
-    fn new(name: String, binary: Vec<u8>) -> Self {
-        Photo {
-            name: (name),
-            binary: (binary),
-        }
-    }
-}
-
-#[derive(Serialize)]
-struct Hairdresser {
-    name: String,
-    num: String,
-    addr: String,
-    company: String,
-}
-
-impl Hairdresser {
-    fn new(name: String, phone_number: String, address: String, company: String) -> Self {
-        Hairdresser {
-            name: (name),
-            num: (phone_number),
-            addr: (address),
-            company: (company),
-        }
-    }
-}
-
-#[derive(Serialize)]
-struct UserImageResponse {
-    hairdresser: Hairdresser,
-    images: Vec<Photo>,
-    result: String,
-}
-
-impl UserImageResponse {
-    fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
-        UserImageResponse {
-            hairdresser: (h_name),
-            images: (images),
-            result: ("Ok".to_string()),
-        }
-    }
-}
+use server::{photo::Photo, hdresser::Hairdresser, sysinfo::SystemInfo, response::UserImageResponse};
 
 #[get("/hello")]
 async fn hello() -> impl Responder {
