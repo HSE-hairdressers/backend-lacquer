@@ -1,15 +1,15 @@
-use serde::Serialize;
 use super::{hdresser::Hairdresser, photo::Photo};
+use serde::Serialize;
 
 #[derive(Serialize)]
-struct UserImageResponse {
-    hairdresser: Hairdresser,
-    images: Vec<Photo>,
+pub struct UserImageResponse {
+    pub hairdresser: Hairdresser,
+    pub images: Vec<Photo>,
     result: String,
 }
 
 impl UserImageResponse {
-    fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
+    pub fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
         UserImageResponse {
             hairdresser: (h_name),
             images: (images),
@@ -17,4 +17,3 @@ impl UserImageResponse {
         }
     }
 }
-
