@@ -1,13 +1,15 @@
 use crate::server::{
-    hdresser::Hairdresser, photo::Photo, response::UserImageResponse, sysinfo::SystemInfo,
+    hdresser::Hairdresser, photo::Photo, response::{UserImageResponse, HairClassifierResponse}, sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
     get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
 };
 use futures_util::StreamExt as _;
-use std::io::Write;
 use uuid::Uuid;
+
+use std::io::Write;
+
 
 #[get("/hello")]
 pub async fn hello() -> impl Responder {
@@ -36,14 +38,15 @@ pub async fn sys_info() -> impl Responder {
 
 #[post("/img")]
 pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
+    let mut filename = String::new();
     while let Some(item) = payload.next().await {
         let mut field = item?;
 
         let content_disposition = field.content_disposition();
 
-        let filename = content_disposition
+        filename.push_str(content_disposition
             .get_filename()
-            .map_or_else(|| Uuid::new_v4().to_string(), sanitize_filename::sanitize);
+            .map_or_else(|| Uuid::new_v4().to_string(), sanitize_filename::sanitize).as_str());
 
         let _ = std::fs::create_dir("./tmp");
         let filepath = format!("./tmp/{filename}");
@@ -61,6 +64,16 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
+    let filepath = format!("./tmp/{filename}");
+    let data = std::fs::read(filepath).unwrap();
+
+    let client = reqwest::Client::new();
+    let res = client.post("http://localhost:5000/api/test")
+        .body(data)
+        .send()
+        .await.unwrap();
+    let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
+
     let hairdresser = Hairdresser::new(
         "Khadiev Edem".to_string(),
         "+7 999 123 45 67".to_string(),
@@ -68,8 +81,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
-    let filename = "test.jpeg";
-    let filepath = format!("./{filename}");
+    let filepath = format!("./test.jpeg");
     let photo = Photo::new(
         filename.to_string(),
         web::block(|| std::fs::read(filepath)).await??,
@@ -78,7 +90,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let mut photos: Vec<Photo> = Vec::new();
     photos.push(photo);
 
-    let response = UserImageResponse::new(hairdresser, photos);
+    let response = UserImageResponse::new(hairdresser, photos, hairstyle.result.as_str());
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
