@@ -65,7 +65,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     }
 
     let filepath = format!("./tmp/{filename}");
-    let data = std::fs::read(filepath).unwrap();
+    let data = std::fs::read(filepath.clone()).unwrap();
 
     let client = reqwest::Client::new();
     let res = client.post("http://localhost:5000/api/test")
@@ -81,7 +81,6 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
-    let filepath = format!("./test.jpeg");
     let photo = Photo::new(
         filename.to_string(),
         web::block(|| std::fs::read(filepath)).await??,
