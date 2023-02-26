@@ -1,5 +1,8 @@
 use crate::server::{
-    hdresser::Hairdresser, photo::Photo, response::{UserImageResponse, HairClassifierResponse}, sysinfo::SystemInfo,
+    hdresser::Hairdresser,
+    photo::Photo,
+    response::{HairClassifierResponse, UserImageResponse},
+    sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
@@ -9,7 +12,6 @@ use futures_util::StreamExt as _;
 use uuid::Uuid;
 
 use std::io::Write;
-
 
 #[get("/hello")]
 pub async fn hello() -> impl Responder {
@@ -44,9 +46,12 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
 
         let content_disposition = field.content_disposition();
 
-        filename.push_str(content_disposition
-            .get_filename()
-            .map_or_else(|| Uuid::new_v4().to_string(), sanitize_filename::sanitize).as_str());
+        filename.push_str(
+            content_disposition
+                .get_filename()
+                .map_or_else(|| Uuid::new_v4().to_string(), sanitize_filename::sanitize)
+                .as_str(),
+        );
 
         let _ = std::fs::create_dir("./tmp");
         let filepath = format!("./tmp/{filename}");
@@ -68,10 +73,12 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let data = std::fs::read(filepath.clone()).unwrap();
 
     let client = reqwest::Client::new();
-    let res = client.post("http://localhost:5000/api/test")
+    let res = client
+        .post("http://localhost:5000/api/test")
         .body(data)
         .send()
-        .await.unwrap();
+        .await
+        .unwrap();
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
     let hairdresser = Hairdresser::new(

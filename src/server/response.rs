@@ -1,5 +1,5 @@
 use super::{hdresser::Hairdresser, photo::Photo};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 pub struct UserImageResponse {
