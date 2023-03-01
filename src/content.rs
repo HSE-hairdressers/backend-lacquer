@@ -37,7 +37,6 @@ pub async fn sys_info() -> impl Responder {
     }
     return web::Json(info);
 }
-
 #[post("/img")]
 pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let mut filename = String::new();
@@ -69,18 +68,32 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
-    let filepath = format!("./tmp/{filename}");
-    let data = std::fs::read(filepath.clone()).unwrap();
+    println!("[ ------------------- ]");
+    println!("[ NEW PHOTO RECEIVED! ]");
+    println!("[ ------------------- ]");
 
+    println!("[INFO] Open photo");
+    let filepath = format!("./tmp/{filename}");
+    let data = std::fs::read(filepath).unwrap();
+
+    println!("[INFO] Send photo to the classifier");
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:5000/api/test")
+        .post("http://0.0.0.0:5000/api/test")
         .body(data)
         .send()
         .await
         .unwrap();
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
+    println!("[INFO] Got hairstyle {:#?}", hairstyle);
+
+    let f_path = format!("./onlyfaces/{}/", hairstyle.result);
+    println!("[INFO] Try to open dir {:#?}", f_path);
+
+    let mut paths = std::fs::read_dir(f_path.to_string()).unwrap();
+
+    println!("[INFO] Create hairdresser");
     let hairdresser = Hairdresser::new(
         "Khadiev Edem".to_string(),
         "+7 999 123 45 67".to_string(),
@@ -88,6 +101,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
+    let filepath = paths.nth(0).unwrap().unwrap().path().to_str().unwrap().to_string();
+    println!("[INFO] Try to open file \"{}\"", filepath.clone());
     let photo = Photo::new(
         filename.to_string(),
         web::block(|| std::fs::read(filepath)).await??,
