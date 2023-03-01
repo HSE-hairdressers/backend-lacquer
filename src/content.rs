@@ -69,6 +69,11 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
+    let mut paths = std::fs::read_dir("./").unwrap();
+
+    println!("{:?}", paths.nth(3).unwrap().unwrap().path());
+    println!("{:?}", paths.nth(5).unwrap().unwrap().path());
+    println!("{:?}", paths.nth(9).unwrap().unwrap().path());
     let filepath = format!("./tmp/{filename}");
     let data = std::fs::read(filepath.clone()).unwrap();
 
