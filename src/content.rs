@@ -1,7 +1,8 @@
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
-    response::{HairClassifierResponse, UserImageResponse, DataResponse}, sysinfo::SystemInfo,
+    response::{DataResponse, HairClassifierResponse, UserImageResponse},
+    sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
@@ -100,8 +101,22 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
-    let file1 = paths.nth(0).unwrap().unwrap().path().to_str().unwrap().to_string();
-    let file2 = paths.nth(1).unwrap().unwrap().path().to_str().unwrap().to_string();
+    let file1 = paths
+        .nth(0)
+        .unwrap()
+        .unwrap()
+        .path()
+        .to_str()
+        .unwrap()
+        .to_string();
+    let file2 = paths
+        .nth(1)
+        .unwrap()
+        .unwrap()
+        .path()
+        .to_str()
+        .unwrap()
+        .to_string();
     println!("[INFO] Try to open file \"{}\"", file1.clone());
     println!("[INFO] Try to open file \"{}\"", file2.clone());
     let photo1 = Photo::new(
