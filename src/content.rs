@@ -1,8 +1,7 @@
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
-    response::{HairClassifierResponse, UserImageResponse},
-    sysinfo::SystemInfo,
+    response::{HairClassifierResponse, UserImageResponse, DataResponse}, sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
@@ -79,7 +78,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     println!("[INFO] Send photo to the classifier");
     let client = reqwest::Client::new();
     let res = client
-        .post("http://0.0.0.0:5000/api/test")
+        .post("http://localhost:5000/api/test")
         .body(data)
         .send()
         .await
@@ -101,17 +100,26 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
-    let filepath = paths.nth(0).unwrap().unwrap().path().to_str().unwrap().to_string();
-    println!("[INFO] Try to open file \"{}\"", filepath.clone());
-    let photo = Photo::new(
-        filename.to_string(),
-        web::block(|| std::fs::read(filepath)).await??,
+    let file1 = paths.nth(0).unwrap().unwrap().path().to_str().unwrap().to_string();
+    let file2 = paths.nth(1).unwrap().unwrap().path().to_str().unwrap().to_string();
+    println!("[INFO] Try to open file \"{}\"", file1.clone());
+    println!("[INFO] Try to open file \"{}\"", file2.clone());
+    let photo1 = Photo::new(
+        "first photo".to_string(),
+        web::block(|| std::fs::read(file1)).await??,
+    );
+    let photo2 = Photo::new(
+        "second photo".to_string(),
+        web::block(|| std::fs::read(file2)).await??,
     );
 
     let mut photos: Vec<Photo> = Vec::new();
-    photos.push(photo);
+    photos.push(photo1);
+    photos.push(photo2);
 
-    let response = UserImageResponse::new(hairdresser, photos, hairstyle.result.as_str());
+    let data_res = DataResponse::new(hairdresser, photos);
+    let mut response = UserImageResponse::new(hairstyle.result.as_str());
+    response.add_data(data_res);
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
