@@ -1,8 +1,7 @@
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
-    response::{HairClassifierResponse, UserImageResponse},
-    sysinfo::SystemInfo,
+    response::{HairClassifierResponse, UserImageResponse, DataResponse}, sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
@@ -37,7 +36,6 @@ pub async fn sys_info() -> impl Responder {
     }
     return web::Json(info);
 }
-
 #[post("/img")]
 pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let mut filename = String::new();
@@ -69,23 +67,31 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
-    let mut paths = std::fs::read_dir("./").unwrap();
+    println!("[ ------------------- ]");
+    println!("[ NEW PHOTO RECEIVED! ]");
+    println!("[ ------------------- ]");
 
-    println!("{:?}", paths.nth(3).unwrap().unwrap().path());
-    println!("{:?}", paths.nth(5).unwrap().unwrap().path());
-    println!("{:?}", paths.nth(9).unwrap().unwrap().path());
+    println!("[INFO] Open photo");
     let filepath = format!("./tmp/{filename}");
-    let data = std::fs::read(filepath.clone()).unwrap();
+    let data = std::fs::read(filepath).unwrap();
 
+    println!("[INFO] Send photo to the classifier");
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:5000/api/test")
+        .post("http://hairclassificator-web-1:8022/api/test")
         .body(data)
         .send()
         .await
         .unwrap();
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
+    println!("[INFO] Got hairstyle {:#?}", hairstyle);
+
+    let f_path = format!("./onlyfaces/{}/", hairstyle.result);
+    println!("[INFO] Try to open dir {:#?}", f_path);
+    let paths = std::fs::read_dir(f_path.to_string()).unwrap();
+
+    println!("[INFO] Create hairdresser");
     let hairdresser = Hairdresser::new(
         "Khadiev Edem".to_string(),
         "+7 999 123 45 67".to_string(),
@@ -93,15 +99,23 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
-    let photo = Photo::new(
-        filename.to_string(),
-        web::block(|| std::fs::read(filepath)).await??,
-    );
-
     let mut photos: Vec<Photo> = Vec::new();
-    photos.push(photo);
+    let mut i = 0;
+    println!("[INFO] Add all photos to a photos");
+    for path in paths.into_iter() {
+        i += 1;
+        let photo = Photo::new(format!("{i} photo"), format!("http://79.137.206.63:8000/{}/{}", hairstyle.result.replace(" ", "_"), path.unwrap().file_name().into_string().unwrap()));
+        photos.push(photo);
+    }
 
-    let response = UserImageResponse::new(hairdresser, photos, hairstyle.result.as_str());
+    let data_res = DataResponse::new(hairdresser, photos);
+    
+    let result = match hairstyle.result.as_str() {
+        "0" => "Error",
+        _ => "Ok",
+    };
+    let mut response = UserImageResponse::new(result);
+    response.add_data(data_res);
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())

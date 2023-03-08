@@ -3,14 +3,14 @@ use serde::Serialize;
 #[derive(Serialize)]
 pub struct Photo {
     pub name: String,
-    pub binary: Vec<u8>,
+    pub img_path: String,
 }
 
 impl Photo {
-    pub fn new(name: String, binary: Vec<u8>) -> Self {
+    pub fn new(name: String, path: String) -> Self {
         Photo {
             name: (name),
-            binary: (binary),
+            img_path: (path),
         }
     }
 }

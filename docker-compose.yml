@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.9"
 
 services:
   app:
@@ -13,4 +13,10 @@ services:
       - "8011:8011"
     volumes:
       - ./volumes/app-data:/app/project
+
+networks:
+  default:
+    external: true
+    name: hairdresser
+    driver: bridge
 

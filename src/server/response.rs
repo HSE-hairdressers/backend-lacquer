@@ -3,19 +3,34 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 pub struct UserImageResponse {
-    pub hairdresser: Hairdresser,
-    pub images: Vec<Photo>,
-    result: String,
-    hairstyle: String,
+    pub data: Vec<DataResponse>,
+    pub result: String,
 }
 
 impl UserImageResponse {
-    pub fn new(h_name: Hairdresser, images: Vec<Photo>, hairstyle: &str) -> Self {
+    pub fn new(result: &str) -> Self {
         UserImageResponse {
+            data: Vec::new(),
+            result: (result.to_string()),
+        }
+    }
+
+    pub fn add_data(&mut self, data: DataResponse) {
+        self.data.push(data);
+    }
+}
+
+#[derive(Serialize)]
+pub struct DataResponse {
+    pub hairdresser: Hairdresser,
+    pub images: Vec<Photo>,
+}
+
+impl DataResponse {
+    pub fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
+        DataResponse {
             hairdresser: (h_name),
             images: (images),
-            result: ("Ok".to_string()),
-            hairstyle: (hairstyle.to_string()),
         }
     }
 }
