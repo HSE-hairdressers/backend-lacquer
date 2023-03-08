@@ -16,6 +16,7 @@ RUN cargo build --release --bin backend-lacquer
 # We do not need the Rust toolchain to run the binary!
 FROM debian:buster-slim AS runtime
 WORKDIR app
+COPY onlyfaces ./onlyfaces
 COPY --from=builder /app/target/release/backend-lacquer /usr/local/bin
 RUN apt -y update
 RUN apt -y install openssl pkg-config libssl-dev
