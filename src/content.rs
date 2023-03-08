@@ -78,7 +78,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     println!("[INFO] Send photo to the classifier");
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:5000/api/test")
+        .post("http://hairclassificator-web-1:8022/api/test")
         .body(data)
         .send()
         .await
@@ -89,8 +89,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
 
     let f_path = format!("./onlyfaces/{}/", hairstyle.result);
     println!("[INFO] Try to open dir {:#?}", f_path);
-
-    let mut paths = std::fs::read_dir(f_path.to_string()).unwrap();
+    let paths = std::fs::read_dir(f_path.to_string()).unwrap();
 
     println!("[INFO] Create hairdresser");
     let hairdresser = Hairdresser::new(
@@ -100,25 +99,22 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         "HSE-hairdressers".to_string(),
     );
 
-    let file1 = paths.nth(0).unwrap().unwrap().path().to_str().unwrap().to_string();
-    let file2 = paths.nth(1).unwrap().unwrap().path().to_str().unwrap().to_string();
-    println!("[INFO] Try to open file \"{}\"", file1.clone());
-    println!("[INFO] Try to open file \"{}\"", file2.clone());
-    let photo1 = Photo::new(
-        "first photo".to_string(),
-        web::block(|| std::fs::read(file1)).await??,
-    );
-    let photo2 = Photo::new(
-        "second photo".to_string(),
-        web::block(|| std::fs::read(file2)).await??,
-    );
-
     let mut photos: Vec<Photo> = Vec::new();
-    photos.push(photo1);
-    photos.push(photo2);
+    let mut i = 0;
+    println!("[INFO] Add all photos to a photos");
+    for path in paths.into_iter() {
+        i += 1;
+        let photo = Photo::new(format!("{i} photo"), format!("http://79.137.206.63:8000/{}/{}", hairstyle.result.replace(" ", "_"), path.unwrap().file_name().into_string().unwrap()));
+        photos.push(photo);
+    }
 
     let data_res = DataResponse::new(hairdresser, photos);
-    let mut response = UserImageResponse::new(hairstyle.result.as_str());
+    
+    let result = match hairstyle.result.as_str() {
+        "0" => "Error",
+        _ => "Ok",
+    };
+    let mut response = UserImageResponse::new(result);
     response.add_data(data_res);
 
     Ok(HttpResponse::Ok()
