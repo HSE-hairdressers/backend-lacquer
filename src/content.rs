@@ -1,4 +1,5 @@
 use crate::repository::db;
+use crate::server::login::{LoginData, LoginResponse};
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
@@ -27,6 +28,23 @@ pub async fn sys_info() -> impl Responder {
         }
     }
     return web::Json(info);
+}
+
+#[post("/login")]
+pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
+    /*
+    *
+    * {"result" : "Ok", "response" : "Hairdresser Name"}
+    * {"result" : "Failed", "response" : "Your password is incorrect or this account doesn't exist"}
+    *
+    * */
+
+    let response = LoginResponse::new("Ok", "Test Name");
+
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(response)
+        .into())
 }
 
 #[post("/img")]
