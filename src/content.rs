@@ -38,10 +38,11 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
     * {"result" : "Failed", "response" : "Your password is incorrect or this account doesn't exist"}
     *
     * */
-
     println!("{:#?}", login_data);
-
-    let response = LoginResponse::new("Ok", "Test Name");
+    let response = match login_data.exist() {
+        Ok(i) => {LoginResponse::new("Ok", &i)},
+        Err(e) => LoginResponse::new("Error", &e),
+    };
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
