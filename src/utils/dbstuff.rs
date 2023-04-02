@@ -83,7 +83,7 @@ impl DatabaseQuery {
                 SELECT hairdressers.name as name
                 FROM hairdressers
                 JOIN dresser_login_info ON hairdressers.id = dresser_login_info.id
-                WHERE password = '{pass}'
+                WHERE hairdressers.id = {hd_id} AND password = '{pass}'
             "
         );
         query.to_owned()
