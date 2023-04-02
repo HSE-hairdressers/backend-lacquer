@@ -16,9 +16,10 @@ RUN cargo build --release --bin backend-lacquer
 # We do not need the Rust toolchain to run the binary!
 FROM debian:buster-slim AS runtime
 WORKDIR app
-COPY onlyfaces ./onlyfaces
+COPY ./hairdressers.db ./hairdressers.db
 COPY --from=builder /app/target/release/backend-lacquer /usr/local/bin
 RUN apt -y update
 RUN apt -y install openssl pkg-config libssl-dev
 RUN apt -y install libssl1.1
+RUN apt -y install sqlite3
 ENTRYPOINT ["/usr/local/bin/backend-lacquer"]
