@@ -13,4 +13,14 @@ impl Photo {
             img_path: (path),
         }
     }
+    pub fn from_vec(paths: &Vec<String>) -> Vec<Self> {
+        let mut ans: Vec<Self> = Vec::with_capacity(paths.capacity());
+        for path in paths {
+            ans.push(Self::new(
+                path.to_string().split("/").last().unwrap().to_string(),
+                path.to_string(),
+            ));
+        }
+        ans
+    }
 }
