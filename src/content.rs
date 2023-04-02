@@ -1,4 +1,5 @@
 use crate::server::{
+    hdresser::Hairdresser,
     photo::Photo,
     response::{DataResponse, HairClassifierResponse, UserImageResponse},
     sysinfo::SystemInfo,
@@ -79,10 +80,11 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
 
     if let Some(hstyle) = hairstyle.get_result() {
         let mut response = UserImageResponse::new("Ok");
-        let hdressers = db::get_hairdressers(&hstyle);
+        let hdressers: Vec<Hairdresser> = db::get_hairdressers(&hstyle); // vector with hairdressers
         for hdresser in hdressers {
-            let img_urls = db::get_picture_links(hdresser.get_id(), &hstyle);
-            let data_res = DataResponse::new(hdresser, Photo::from_vec(&img_urls));
+            let img_urls: Vec<String> = db::get_picture_links(hdresser.get_id(), &hstyle);
+            let images: Vec<Photo> = Photo::from_vec(&img_urls);
+            let data_res = DataResponse::new(hdresser, images);
             response.add_data(data_res);
         }
         Ok(HttpResponse::Ok()
