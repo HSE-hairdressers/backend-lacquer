@@ -1,5 +1,5 @@
 use crate::server::hdresser::Hairdresser;
-use crate::utils::dbstuff::{DatabaseQuery, DB_PATH, HAIRSTYLES};
+use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 
 pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
     let mut hdressers: Vec<Hairdresser> = vec![];
@@ -19,7 +19,7 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
             cur_data.1,
             cur_data.2,
             "No Phone".to_string(),
-            "No email".to_string(),
+            "No address".to_string(),
             "No company".to_string(),
         ));
     }
@@ -42,7 +42,7 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
     let mut pictures: Vec<String> = vec![];
     while let Ok(sqlite::State::Row) = statement.next() {
         pictures.push(format!(
-            "https://79.137.206.63:8000/{}",
+            "http://79.137.206.63:8000/{}",
             statement.read::<String, _>(query.1.as_str()).unwrap()
         ));
     }

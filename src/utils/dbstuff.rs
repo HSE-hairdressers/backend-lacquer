@@ -40,7 +40,7 @@ impl DatabaseQuery {
         );
         let query = format!(
             "
-                SELECT hairdressers.id as {}, hairdressers.email as {}, hairdressers.name as {}
+                SELECT DISTINCT hairdressers.id as {}, hairdressers.email as {}, hairdressers.name as {}
                 FROM style_to_dresser
                 JOIN hairdressers ON hairdresser_id = hairdressers.id
                 JOIN hairstyles ON hairstyle_name = hairstyles.name
