@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /* main response on user Image */
 #[derive(Serialize)]
-pub struct UserImageResponse { 
+pub struct UserImageResponse {
     pub data: Vec<DataResponse>,
     pub result: String,
 }

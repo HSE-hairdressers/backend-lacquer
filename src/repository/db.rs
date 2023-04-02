@@ -41,7 +41,10 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
 
     let mut pictures: Vec<String> = vec![];
     while let Ok(sqlite::State::Row) = statement.next() {
-        pictures.push(format!("https://79.137.206.63:8000/{}", statement.read::<String, _>(query.1.as_str()).unwrap()));
+        pictures.push(format!(
+            "https://79.137.206.63:8000/{}",
+            statement.read::<String, _>(query.1.as_str()).unwrap()
+        ));
     }
     pictures
 }

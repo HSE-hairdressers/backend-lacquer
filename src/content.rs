@@ -1,10 +1,10 @@
+use crate::repository::db;
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
     response::{DataResponse, HairClassifierResponse, UserImageResponse},
     sysinfo::SystemInfo,
 };
-use crate::repository::db;
 use actix_multipart::Multipart;
 use actix_web::{
     get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
@@ -93,12 +93,11 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             .into())
     } else {
         let response = UserImageResponse::new("Error");
-        Ok(HttpResponse::Ok().content_type(ContentType::json()).json(response).into())
+        Ok(HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .json(response)
+            .into())
     }
-
-
-
-
 
     // let f_path = format!("./onlyfaces/{}/", hairstyle.result);
     // println!("[INFO] Try to open dir {:#?}", f_path);
@@ -137,5 +136,4 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     // };
     // let mut response = UserImageResponse::new(result);
     // response.add_data(data_res);
-
 }
