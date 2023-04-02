@@ -1,8 +1,9 @@
 use super::{hdresser::Hairdresser, photo::Photo};
 use serde::{Deserialize, Serialize};
 
+/* main response on user Image */
 #[derive(Serialize)]
-pub struct UserImageResponse {
+pub struct UserImageResponse { 
     pub data: Vec<DataResponse>,
     pub result: String,
 }
@@ -20,6 +21,7 @@ impl UserImageResponse {
     }
 }
 
+/* Every single hairdresser with their photos */
 #[derive(Serialize)]
 pub struct DataResponse {
     pub hairdresser: Hairdresser,
@@ -46,4 +48,14 @@ pub struct HairClassifierResponse {
     pub message: String,
     pub size: ImageSize,
     pub result: String,
+}
+
+impl HairClassifierResponse {
+    pub fn get_result(&self) -> Option<String> {
+        if self.result != "Error" {
+            Some(self.result.to_string())
+        } else {
+            None
+        }
+    }
 }
