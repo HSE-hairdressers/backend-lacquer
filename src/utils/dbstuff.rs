@@ -64,4 +64,28 @@ impl DatabaseQuery {
         );
         (query.to_owned(), index.to_string())
     }
+
+    pub fn is_email_exist(email: &str) -> String {
+        let query = format!(
+            "
+                SELECT hairdressers.id as id
+                FROM dresser_login_info
+                JOIN hairdressers ON hairdressers.id = dresser_login_info.id
+                WHERE hairdressers.email = '{email}'
+            "
+        );
+        query.to_owned()
+    }
+
+    pub fn get_password(hd_id: i64, pass: &str) -> String {
+        let query = format!(
+            "
+                SELECT hairdressers.name as name
+                FROM hairdressers
+                JOIN dresser_login_info ON hairdressers.id = dresser_login_info.id
+                WHERE hairdressers.id = {hd_id} AND password = '{pass}'
+            "
+        );
+        query.to_owned()
+    }
 }
