@@ -1,4 +1,5 @@
 use crate::server::hdresser::Hairdresser;
+use crate::server::login::LoginData;
 use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 
 pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
@@ -47,4 +48,39 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
         ));
     }
     pictures
+}
+
+impl LoginData {
+    pub fn exist(&self) -> Result<String, String> {
+        let connection = sqlite::open(DB_PATH).unwrap();
+
+        let query = DatabaseQuery::is_email_exist(&self.username);
+        let mut statement = connection.prepare(&query).unwrap();
+        let mut res = -1;
+        while let Ok(sqlite::State::Row) = statement.next() {
+            res = statement.read::<i64, _>("id").unwrap();
+        }
+        if res == -1 {
+            Err("Your password is incorrect or this account doesn't exist".to_string())
+        } else {
+            let res = self.chech_password(res);
+            if res.is_empty() {
+                Err("Your password is incorrect or this account doesn't exist".to_string())
+            } else {
+                Ok(res)
+            }
+        }
+    }
+
+    pub fn chech_password(&self, id: i64) -> String {
+        let connection = sqlite::open(DB_PATH).unwrap();
+
+        let query = DatabaseQuery::get_password(id, &self.password);
+        let mut statement = connection.prepare(&query).unwrap();
+        let mut res = String::new();
+        while let Ok(sqlite::State::Row) = statement.next() {
+            res = statement.read::<String, _>("name").unwrap();
+        }
+        res
+    }
 }
