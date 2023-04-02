@@ -39,6 +39,8 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
     *
     * */
 
+    println!("{:#?}", login_data);
+
     let response = LoginResponse::new("Ok", "Test Name");
 
     Ok(HttpResponse::Ok()
