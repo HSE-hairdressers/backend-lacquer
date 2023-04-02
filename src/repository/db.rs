@@ -51,7 +51,18 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
 }
 
 impl LoginData {
-    pub fn exist(&self) -> Result<String, String> {
+    pub fn validation(&self) -> Result<String, String> {
+        let existance = self.exist();
+        if existance != -1 {
+            let res = self.chech_password(existance);
+            if !res.is_empty() {
+                return Ok(res);
+            }
+        }
+        Err("Your password is incorrect or this account doesn't exist".to_string())
+    }
+
+    fn exist(&self) -> i64 {
         let connection = sqlite::open(DB_PATH).unwrap();
 
         let query = DatabaseQuery::is_email_exist(&self.username);
@@ -60,19 +71,10 @@ impl LoginData {
         while let Ok(sqlite::State::Row) = statement.next() {
             res = statement.read::<i64, _>("id").unwrap();
         }
-        if res == -1 {
-            Err("Your password is incorrect or this account doesn't exist".to_string())
-        } else {
-            let res = self.chech_password(res);
-            if res.is_empty() {
-                Err("Your password is incorrect or this account doesn't exist".to_string())
-            } else {
-                Ok(res)
-            }
-        }
+        res
     }
 
-    pub fn chech_password(&self, id: i64) -> String {
+    fn chech_password(&self, id: i64) -> String {
         let connection = sqlite::open(DB_PATH).unwrap();
 
         let query = DatabaseQuery::get_password(id, &self.password);
