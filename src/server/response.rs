@@ -52,7 +52,7 @@ pub struct HairClassifierResponse {
 
 impl HairClassifierResponse {
     pub fn get_result(&self) -> Option<String> {
-        if self.result != "Error" {
+        if self.result != "0" {
             Some(self.result.to_string())
         } else {
             None
