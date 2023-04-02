@@ -18,33 +18,6 @@ pub const HAIRSTYLES: &'static [&str] = &[
 pub struct DatabaseQuery;
 
 impl DatabaseQuery {
-    pub fn init_db() -> String {
-        let query = "
-            CREATE TABLE hairdressers (
-                                        id UNIQUE AUTOINCREMENT INTEGER PRIMARY,
-                                        email TEXT UNIQUE,
-                                        name TEXT NOT NULL
-                                        number TEXT,
-                                        address TEXT,
-                                        company TEXT,
-            );
-            CREATE TABLE hairstyles (name TEXT UNIQUE PRIMARY);
-            CREATE TABLE style_to_dresser (
-                                        hairdresser_id INTEGER,
-                                        hairstyle_name TEXT,
-                                        img_url TEXT,
-                                        FOREIGN KEY (hairdresser_id) REFERENCES
-                                        hairdressers(id),
-                                        FOREIGN KEY (hairstyle_name) REFERENCES hairstyles(name)
-            );
-            INSERT INTO hairdressers (email, name) VALUES ('khadiev.edem@gmail.com', 'Khadiev Edem');
-            INSERT INTO hairdressers (email, name) VALUES ('max.md8@gmail.com', 'Maxim Dudarev');
-            INSERT INTO hairdressers (email, name) VALUES ('ageev.maxim2003@gmail.com', 'Maxim Ageev');
-
-        ";
-        query.to_owned()
-    }
-
     pub fn get_hdresser_id(hdresser_email: &str) -> (String, String) {
         let index = "id";
         let query = format!(
@@ -69,7 +42,7 @@ impl DatabaseQuery {
             "
                 SELECT hairdressers.id as {}, hairdressers.email as {}, hairdressers.name as {}
                 FROM style_to_dresser
-                JOIN hairdressers ON hairdresser_email = hairdressers.email
+                JOIN hairdressers ON hairdresser_id = hairdressers.id
                 JOIN hairstyles ON hairstyle_name = hairstyles.name
                 WHERE hairstyles.name = '{hstyle}'
             ",
@@ -84,8 +57,8 @@ impl DatabaseQuery {
             "
                 SELECT img_url as {index}
                 FROM style_to_dresser
-                JOIN hairstyles ON hairstyle_id = hairstyles.id
-                JOIN hairdressers ON hairdresser_email = hairdressers.email
+                JOIN hairstyles ON hairstyle_name = hairstyles.name
+                JOIN hairdressers ON hairdresser_id = hairdressers.id
                 WHERE hairdresser_id = '{hd_id}' AND hairstyle_name ='{hstyle}'
             "
         );
