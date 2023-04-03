@@ -11,6 +11,7 @@ use actix_web::{
     get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
 };
 use futures_util::StreamExt as _;
+use log::{info, warn};
 use uuid::Uuid;
 
 use std::io::Write;
@@ -33,18 +34,21 @@ pub async fn sys_info() -> impl Responder {
 #[post("/login")]
 pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
     /*
-     * {
-     *   "result" : "Ok",
-     *   "response" : "Hairdresser Name"
-     * }
-     * {
-     *   "result" : "Failed",
-     *   "response" : "Your password is incorrect or this account doesn't exist"
-     * }
+     * { "result" : "Ok",
+     *   "response" : "Hairdresser Name" }
+     * { "result" : "Failed",
+     *   "response" : "Your password is incorrect or this account doesn't exist" }
      * */
+    info!("Login attempt received! {:?}", login_data);
     let response = match login_data.validation() {
-        Ok(i) => LoginResponse::new("Ok", &i),
-        Err(e) => LoginResponse::new("Error", &e),
+        Ok(i) => {
+            info!("Login success.");
+            LoginResponse::new("Ok", &i)
+        }
+        Err(e) => {
+            warn!("Wrong password or email!");
+            LoginResponse::new("Error", &e)
+        }
     };
 
     Ok(HttpResponse::Ok()
@@ -82,15 +86,12 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
-    println!("[ ------------------- ]");
-    println!("[ NEW PHOTO RECEIVED! ]");
-    println!("[ ------------------- ]");
-
-    println!("[INFO] Open photo");
+    info!("New photo received!");
     let filepath = format!("./tmp/{filename}");
-    let data = std::fs::read(filepath).unwrap();
+    let data = std::fs::read(filepath.clone()).unwrap();
+    info!("Photo opened successfully! {}", filepath);
 
-    println!("[INFO] Send photo to the classifier");
+    info!("Photo sent to the classifier.");
     let client = reqwest::Client::new();
     let res = client
         .post("http://hairclassificator-web-1:8022/api/test")
@@ -100,9 +101,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         .unwrap();
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
-    println!("[INFO] Got hairstyle {:#?}", hairstyle);
-
     if let Some(hstyle) = hairstyle.get_result() {
+        info!("Photo classified! {}", hstyle);
         let mut response = UserImageResponse::new("Ok");
         let hdressers: Vec<Hairdresser> = db::get_hairdressers(&hstyle); // vector with hairdressers
         for hdresser in hdressers {
@@ -116,48 +116,14 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             .json(response)
             .into())
     } else {
+        warn!(
+            "Photo wasn't recognized with message: \"{}\"",
+            hairstyle.message
+        );
         let response = UserImageResponse::new("Error");
         Ok(HttpResponse::Ok()
             .content_type(ContentType::json())
             .json(response)
             .into())
     }
-
-    // let f_path = format!("./onlyfaces/{}/", hairstyle.result);
-    // println!("[INFO] Try to open dir {:#?}", f_path);
-    // let paths = std::fs::read_dir(f_path.to_string()).unwrap();
-
-    // println!("[INFO] Create hairdresser");
-    // let hairdresser = Hairdresser::new(
-    //     ""
-    //     "Khadiev Edem".to_string(),
-    //     "+7 999 123 45 67".to_string(),
-    //     "NN, Test st., 100100".to_string(),
-    //     "HSE-hairdressers".to_string(),
-    // );
-
-    // let mut photos: Vec<Photo> = Vec::new();
-    // let mut i = 0;
-    // println!("[INFO] Add all photos to a photos");
-    // for path in paths.into_iter() {
-    //     i += 1;
-    //     let photo = Photo::new(
-    //         format!("{i} photo"),
-    //         format!(
-    //             "http://79.137.206.63:8000/{}/{}",
-    //             hairstyle.result.replace(" ", "_"),
-    //             path.unwrap().file_name().into_string().unwrap()
-    //         ),
-    //     );
-    //     photos.push(photo);
-    // }
-
-    // let data_res = DataResponse::new(hairdresser, photos);
-
-    // let result = match hairstyle.result.as_str() {
-    //     "0" => "Error",
-    //     _ => "Ok",
-    // };
-    // let mut response = UserImageResponse::new(result);
-    // response.add_data(data_res);
 }
