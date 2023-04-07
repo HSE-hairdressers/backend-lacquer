@@ -68,10 +68,8 @@ impl DatabaseQuery {
     pub fn is_email_exist(email: &str) -> String {
         let query = format!(
             "
-                SELECT hairdressers.id as id
-                FROM dresser_login_info
-                JOIN hairdressers ON hairdressers.id = dresser_login_info.id
-                WHERE hairdressers.email = '{email}'
+                SELECT id FROM hairdressers
+                WHERE email = '{email}'
             "
         );
         query.to_owned()
@@ -86,6 +84,16 @@ impl DatabaseQuery {
                 WHERE hairdressers.id = {hd_id} AND password = '{pass}'
             "
         );
+        query.to_owned()
+    }
+
+    pub fn add_user_to_db(email: &str, name: &str, num: &str, addr: &str, com: &str) -> String {
+        let query = format!("INSERT INTO hairdressers (email, name, number, address, company) VALUES ('{email}', '{name}', '{num}', '{addr}', '{com}');");
+        query.to_owned()
+    }
+
+    pub fn change_password(hd_id: i64, pass: &str) -> String {
+        let query = format!("INSERT INTO dresser_login_info VALUES ({hd_id}, '{pass}');");
         query.to_owned()
     }
 }

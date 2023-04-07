@@ -1,9 +1,10 @@
 use crate::repository::db;
-use crate::server::login::{LoginData, LoginResponse};
+use crate::server::login::LoginData;
+use crate::server::reg::RegistrationData;
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
-    response::{DataResponse, HairClassifierResponse, UserImageResponse},
+    response::{DataResponse, HairClassifierResponse, LoginResponse, UserImageResponse},
     sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
@@ -11,7 +12,7 @@ use actix_web::{
     get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
 };
 use futures_util::StreamExt as _;
-use log::{info, warn};
+use log::{debug, info, warn};
 use uuid::Uuid;
 
 use std::io::Write;
@@ -31,15 +32,10 @@ pub async fn sys_info() -> impl Responder {
     return web::Json(info);
 }
 
-#[post("/login")]
+#[post("auth/login")]
 pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
-    /*
-     * { "result" : "Ok",
-     *   "response" : "Hairdresser Name" }
-     * { "result" : "Failed",
-     *   "response" : "Your password is incorrect or this account doesn't exist" }
-     * */
-    info!("Login attempt received! {:?}", login_data);
+    info!("Login attempt received!");
+    debug!("{:?}", login_data);
     let response = match login_data.validation() {
         Ok(i) => {
             info!("Login success.");
@@ -50,6 +46,28 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
             LoginResponse::new("Error", &e)
         }
     };
+
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(response)
+        .into())
+}
+
+#[post("auth/registration")]
+pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpResponse, Error> {
+    /*
+     * "username"     : str,
+     * "name"         : str,
+     * "phone"        : str,
+     * "address"      : str,
+     * "company"      : str,
+     * "password"     : str,
+     * "verification" : str,
+     * */
+    info!("Registration attempt received!");
+    debug!("{:?}", reg_data);
+
+    let response = reg_data.register();
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
@@ -89,7 +107,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     info!("New photo received!");
     let filepath = format!("./tmp/{filename}");
     let data = std::fs::read(filepath.clone()).unwrap();
-    info!("Photo opened successfully! {}", filepath);
+    info!("Photo opened successfully!");
+    debug!("{:?}", filepath);
 
     info!("Photo sent to the classifier.");
     let client = reqwest::Client::new();
@@ -102,7 +121,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
     if let Some(hstyle) = hairstyle.get_result() {
-        info!("Photo classified! {}", hstyle);
+        info!("Photo classified!");
+        debug!("{:?}", hstyle);
         let mut response = UserImageResponse::new("Ok");
         let hdressers: Vec<Hairdresser> = db::get_hairdressers(&hstyle); // vector with hairdressers
         for hdresser in hdressers {
@@ -116,7 +136,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             .json(response)
             .into())
     } else {
-        warn!(
+        info!(
             "Photo wasn't recognized with message: \"{}\"",
             hairstyle.message
         );

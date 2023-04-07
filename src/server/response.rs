@@ -59,3 +59,31 @@ impl HairClassifierResponse {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LoginResponse {
+    pub result: String,
+    pub response: String,
+}
+
+impl LoginResponse {
+    pub fn new(res: &str, resp: &str) -> Self {
+        Self {
+            result: res.to_string(),
+            response: resp.to_string(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RegistrationResponse {
+    pub result: String,
+}
+
+impl RegistrationResponse {
+    pub fn new(res: &str) -> Self {
+        Self {
+            result: res.to_string(),
+        }
+    }
+}
