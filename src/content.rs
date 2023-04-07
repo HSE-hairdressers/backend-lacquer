@@ -13,7 +13,6 @@ use actix_web::{
 };
 use futures_util::StreamExt as _;
 use log::{debug, info, warn};
-use simple_logger::SimpleLogger;
 use uuid::Uuid;
 
 use std::io::Write;
@@ -143,7 +142,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             .json(response)
             .into())
     } else {
-        warn!(
+        info!(
             "Photo wasn't recognized with message: \"{}\"",
             hairstyle.message
         );
