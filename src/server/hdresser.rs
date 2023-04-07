@@ -4,6 +4,7 @@ use serde::Serialize;
 pub struct Hairdresser {
     id: i64,
     email: String,
+    pub pic: String,
     pub name: String,
     pub num: String,
     pub addr: String,
@@ -22,6 +23,7 @@ impl Hairdresser {
         Hairdresser {
             id: (id),
             email: (email),
+            pic: "http://clipart-library.com/images/BTaroLj5c.png".to_string(),
             name: (name),
             num: (phone_number),
             addr: (address),
