@@ -1,6 +1,6 @@
 use crate::repository::db;
 use crate::server::login::{LoginData, LoginResponse};
-use crate::server::reg::{RegistrationResponse, RegistrationData};
+use crate::server::reg::{RegistrationData, RegistrationResponse};
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
@@ -61,12 +61,12 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
 #[post("auth/registration")]
 pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpResponse, Error> {
     /*
-     * "username"     : str, 
-     * "name"         : str,  
-     * "phone"        : str,        
+     * "username"     : str,
+     * "name"         : str,
+     * "phone"        : str,
      * "address"      : str,
-     * "company"      : str, 
-     * "password"     : str,  
+     * "company"      : str,
+     * "password"     : str,
      * "verification" : str,
      * */
     info!("Registration attempt received! {:?}", reg_data);

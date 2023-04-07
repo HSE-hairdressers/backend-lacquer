@@ -4,7 +4,7 @@ pub mod server;
 pub mod utils;
 
 use actix_web::{App, HttpServer};
-use content::{img, sys_info, login};
+use content::{img, login, sys_info};
 use utils::ipstuff::IpAndPort;
 
 #[tokio::main]
