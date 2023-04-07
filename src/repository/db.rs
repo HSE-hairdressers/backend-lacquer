@@ -1,6 +1,7 @@
 use crate::server::hdresser::Hairdresser;
 use crate::server::login::LoginData;
-use crate::server::reg::{RegistrationData, RegistrationResponse};
+use crate::server::reg::RegistrationData;
+use crate::server::response::RegistrationResponse;
 use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 
 use log::{debug, info};
@@ -128,7 +129,7 @@ impl RegistrationData {
             Ok(_) => {
                 info!(target: "registration", "User already exists!");
                 RegistrationResponse::new("Failed")
-            },
+            }
         }
     }
 
