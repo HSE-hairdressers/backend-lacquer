@@ -1,10 +1,10 @@
 use crate::repository::db;
-use crate::server::login::{LoginData, LoginResponse};
+use crate::server::login::LoginData;
 use crate::server::reg::RegistrationData;
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
-    response::{DataResponse, HairClassifierResponse, UserImageResponse},
+    response::{DataResponse, HairClassifierResponse, LoginResponse, UserImageResponse},
     sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
