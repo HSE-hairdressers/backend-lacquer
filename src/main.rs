@@ -13,7 +13,6 @@ use utils::ipstuff::IpAndPort;
 async fn main() -> std::io::Result<()> {
     SimpleLogger::new()
         .with_colors(true)
-        .with_level(LevelFilter::Debug | LevelFilter::Info | LevelFilter::Warn)
         .init()
         .unwrap();
     let config = IpAndPort::new();
