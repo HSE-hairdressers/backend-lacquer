@@ -59,7 +59,7 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
 }
 
 #[post("auth/registration")]
-pub async fn registration(reg: web::Json<RegistrationData>) -> Result<HttpResponse, Error> {
+pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpResponse, Error> {
     /*
      * "username"     : str, 
      * "name"         : str,  
@@ -71,7 +71,7 @@ pub async fn registration(reg: web::Json<RegistrationData>) -> Result<HttpRespon
      * */
     info!("Registration attempt received! {:?}", reg_data);
 
-    let response = RegistrationResponse::new("Ok");
+    let response = reg_data.register();
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
