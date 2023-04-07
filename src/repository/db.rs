@@ -91,7 +91,7 @@ impl LoginData {
 impl RegistrationData {
     pub fn register(&self) -> RegistrationResponse {
         match self.exist() {
-            Ok(id) => {
+            Err(_) => {
                 let connection = sqlite::open(DB_PATH).unwrap();
 
                 let query = DatabaseQuery::add_user_to_db(
@@ -103,12 +103,13 @@ impl RegistrationData {
                 );
                 connection.execute(query).unwrap();
 
+                let id = self.exist().unwrap();
                 let query = DatabaseQuery::change_password(id, &self.password);
                 connection.execute(query).unwrap();
 
                 RegistrationResponse::new("Ok")
             }
-            Err(e) => RegistrationResponse::new(e),
+            Ok(_) => RegistrationResponse::new("Failed"),
         }
     }
 
@@ -122,7 +123,7 @@ impl RegistrationData {
             res = statement.read::<i64, _>("id").unwrap();
         }
         if res == -1 {
-            Err("Failed")
+            Err("User doesn't exist")
         } else {
             Ok(res)
         }
