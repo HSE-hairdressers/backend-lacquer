@@ -68,10 +68,8 @@ impl DatabaseQuery {
     pub fn is_email_exist(email: &str) -> String {
         let query = format!(
             "
-                SELECT hairdressers.id as id
-                FROM dresser_login_info
-                JOIN hairdressers ON hairdressers.id = dresser_login_info.id
-                WHERE hairdressers.email = '{email}'
+                SELECT if FROM hairdressers
+                WHERE email = '{email}'
             "
         );
         query.to_owned()
