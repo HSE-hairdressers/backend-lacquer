@@ -12,8 +12,9 @@ use actix_web::{
     get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
 };
 use futures_util::StreamExt as _;
-use log::{info, warn};
+use simple_logger::SimpleLogger;
 use uuid::Uuid;
+use log::{debug, info, warn};
 
 use std::io::Write;
 

@@ -6,9 +6,11 @@ pub mod utils;
 use actix_web::{App, HttpServer};
 use content::{img, login, registration, sys_info};
 use utils::ipstuff::IpAndPort;
+use simple_logger::SimpleLogger;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    SimpleLogger::new().init().unwrap();
     let config = IpAndPort::new();
 
     HttpServer::new(|| {
