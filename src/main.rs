@@ -5,12 +5,19 @@ pub mod utils;
 
 use actix_web::{App, HttpServer};
 use content::{img, login, registration, sys_info};
-use utils::ipstuff::IpAndPort;
+use log::LevelFilter;
 use simple_logger::SimpleLogger;
+use utils::ipstuff::IpAndPort;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    SimpleLogger::new().init().unwrap();
+    SimpleLogger::new()
+        .with_colors(true)
+        .with_level(LevelFilter::Debug)
+        .with_level(LevelFilter::Info)
+        .with_level(LevelFilter::Warn)
+        .init()
+        .unwrap();
     let config = IpAndPort::new();
 
     HttpServer::new(|| {
