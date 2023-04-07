@@ -95,6 +95,7 @@ impl DatabaseQuery {
     }
 
     pub fn change_password(hd_id: i64, pass: &str) -> String {
-
+        let query = format!("INSERT INTO dresser_login_info VALUES ({hd_id}, '{pass}');");
+        query.to_owned()
     }
 }
