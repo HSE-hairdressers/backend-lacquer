@@ -88,4 +88,13 @@ impl DatabaseQuery {
         );
         query.to_owned()
     }
+
+    pub fn add_user_to_db(email: &str, name: &str, num: &str, addr: &str, com: &str) -> String {
+        let query = format!("INSERT INTO hairdressers (email, name, number, address, company) VALUES ('{email}', '{name}', '{num}', '{addr}', '{com}');");
+        query.to_owned()
+    }
+
+    pub fn change_password(hd_id: i64, pass: &str) -> String {
+
+    }
 }
