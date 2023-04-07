@@ -5,7 +5,7 @@ pub mod utils;
 
 use actix_web::{App, HttpServer};
 use content::{img, login, registration, sys_info};
-// use log::LevelFilter;
+use log::LevelFilter;
 use simple_logger::SimpleLogger;
 use utils::ipstuff::IpAndPort;
 
@@ -13,6 +13,7 @@ use utils::ipstuff::IpAndPort;
 async fn main() -> std::io::Result<()> {
     SimpleLogger::new()
         .with_colors(true)
+        .with_level(LevelFilter::Info)
         .init()
         .unwrap();
     let config = IpAndPort::new();
