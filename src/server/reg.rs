@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegistrationData {
-    username: String,
-    name: String,
-    phone: String,
-    address: String,
-    company: String,
-    password: String,
+    pub username: String,
+    pub name: String,
+    pub phone: String,
+    pub address: String,
+    pub company: String,
+    pub password: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
