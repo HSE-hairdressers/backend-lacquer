@@ -12,9 +12,9 @@ use actix_web::{
     get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
 };
 use futures_util::StreamExt as _;
+use log::{debug, info, warn};
 use simple_logger::SimpleLogger;
 use uuid::Uuid;
-use log::{debug, info, warn};
 
 use std::io::Write;
 
@@ -35,13 +35,14 @@ pub async fn sys_info() -> impl Responder {
 
 #[post("auth/login")]
 pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
-    /*
+    /**
      * { "result" : "Ok",
      *   "response" : "Hairdresser Name" }
      * { "result" : "Failed",
      *   "response" : "Your password is incorrect or this account doesn't exist" }
      * */
-    info!("Login attempt received! {:?}", login_data);
+    info!("Login attempt received!");
+    debug!("{:?}", login_data);
     let response = match login_data.validation() {
         Ok(i) => {
             info!("Login success.");
@@ -70,7 +71,8 @@ pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpR
      * "password"     : str,
      * "verification" : str,
      * */
-    info!("Registration attempt received! {:?}", reg_data);
+    info!("Registration attempt received!");
+    debug!("{:?}", reg_data);
 
     let response = reg_data.register();
 
@@ -112,7 +114,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     info!("New photo received!");
     let filepath = format!("./tmp/{filename}");
     let data = std::fs::read(filepath.clone()).unwrap();
-    info!("Photo opened successfully! {}", filepath);
+    info!("Photo opened successfully!");
+    debug!("{:?}", filepath);
 
     info!("Photo sent to the classifier.");
     let client = reqwest::Client::new();
@@ -125,7 +128,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
     if let Some(hstyle) = hairstyle.get_result() {
-        info!("Photo classified! {}", hstyle);
+        info!("Photo classified!");
+        debug!("{:?}", hstyle);
         let mut response = UserImageResponse::new("Ok");
         let hdressers: Vec<Hairdresser> = db::get_hairdressers(&hstyle); // vector with hairdressers
         for hdresser in hdressers {
