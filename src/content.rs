@@ -31,7 +31,7 @@ pub async fn sys_info() -> impl Responder {
     return web::Json(info);
 }
 
-#[post("/login")]
+#[post("auth/login")]
 pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
     /*
      * { "result" : "Ok",
@@ -50,6 +50,35 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
             LoginResponse::new("Error", &e)
         }
     };
+
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(response)
+        .into())
+}
+
+#[post("auth/registration")]
+pub async fn registration(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
+    /*
+     * "username"     : str, 
+     * "name"         : str,  
+     * "phone"        : str,        
+     * "address"      : str,
+     * "company"      : str, 
+     * "password"     : str,  
+     * "verification" : str,
+     * */
+    //info!("Login attempt received! {:?}", login_data);
+    //let response = match login_data.validation() {
+    //    Ok(i) => {
+    //        info!("Login success.");
+    //        LoginResponse::new("Ok", &i)
+    //    }
+    //    Err(e) => {
+    //        warn!("Wrong password or email!");
+    //        LoginResponse::new("Error", &e)
+    //    }
+    //};
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
