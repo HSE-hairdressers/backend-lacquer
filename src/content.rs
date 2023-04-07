@@ -1,6 +1,6 @@
 use crate::repository::db;
 use crate::server::login::{LoginData, LoginResponse};
-use crate::server::reg::{RegistrationData, RegistrationResponse};
+use crate::server::reg::RegistrationData;
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,

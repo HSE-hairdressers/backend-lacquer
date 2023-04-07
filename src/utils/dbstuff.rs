@@ -68,7 +68,7 @@ impl DatabaseQuery {
     pub fn is_email_exist(email: &str) -> String {
         let query = format!(
             "
-                SELECT if FROM hairdressers
+                SELECT id FROM hairdressers
                 WHERE email = '{email}'
             "
         );
