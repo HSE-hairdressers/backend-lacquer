@@ -1,5 +1,6 @@
 use crate::repository::db;
 use crate::server::login::{LoginData, LoginResponse};
+use crate::server::reg::{RegistrationResponse, RegistrationData};
 use crate::server::{
     hdresser::Hairdresser,
     photo::Photo,
@@ -58,7 +59,7 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
 }
 
 #[post("auth/registration")]
-pub async fn registration(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
+pub async fn registration(reg: web::Json<RegistrationData>) -> Result<HttpResponse, Error> {
     /*
      * "username"     : str, 
      * "name"         : str,  
@@ -68,17 +69,9 @@ pub async fn registration(login_data: web::Json<LoginData>) -> Result<HttpRespon
      * "password"     : str,  
      * "verification" : str,
      * */
-    //info!("Login attempt received! {:?}", login_data);
-    //let response = match login_data.validation() {
-    //    Ok(i) => {
-    //        info!("Login success.");
-    //        LoginResponse::new("Ok", &i)
-    //    }
-    //    Err(e) => {
-    //        warn!("Wrong password or email!");
-    //        LoginResponse::new("Error", &e)
-    //    }
-    //};
+    info!("Registration attempt received! {:?}", reg_data);
+
+    let response = RegistrationResponse::new("Ok");
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
