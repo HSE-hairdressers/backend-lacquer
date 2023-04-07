@@ -1,5 +1,6 @@
 use crate::server::hdresser::Hairdresser;
 use crate::server::login::LoginData;
+use crate::server::reg::{RegistrationData, RegistrationResponse};
 use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 
 pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
@@ -54,7 +55,7 @@ impl LoginData {
     pub fn validation(&self) -> Result<String, String> {
         let existance = self.exist();
         if existance != -1 {
-            let res = self.chech_password(existance);
+            let res = self.check_password(existance);
             if !res.is_empty() {
                 return Ok(res);
             }
@@ -74,7 +75,7 @@ impl LoginData {
         res
     }
 
-    fn chech_password(&self, id: i64) -> String {
+    fn check_password(&self, id: i64) -> String {
         let connection = sqlite::open(DB_PATH).unwrap();
 
         let query = DatabaseQuery::get_password(id, &self.password);
@@ -84,5 +85,46 @@ impl LoginData {
             res = statement.read::<String, _>("name").unwrap();
         }
         res
+    }
+}
+
+impl RegistrationData {
+    pub fn register(&self) -> RegistrationResponse {
+        match self.exist() {
+            Ok(id) => {
+                let connection = sqlite::open(DB_PATH).unwrap();
+
+                let query = DatabaseQuery::add_user_to_db(
+                    &self.username,
+                    &self.name,
+                    &self.phone,
+                    &self.address,
+                    &self.company,
+                );
+                connection.execute(query).unwrap();
+
+                let query = DatabaseQuery::change_password(id, &self.password);
+                connection.execute(query).unwrap();
+
+                RegistrationResponse::new("Ok")
+            }
+            Err(e) => RegistrationResponse::new(e),
+        }
+    }
+
+    fn exist(&self) -> Result<i64, &str> {
+        let connection = sqlite::open(DB_PATH).unwrap();
+
+        let query = DatabaseQuery::is_email_exist(&self.username);
+        let mut statement = connection.prepare(&query).unwrap();
+        let mut res = -1;
+        while let Ok(sqlite::State::Row) = statement.next() {
+            res = statement.read::<i64, _>("id").unwrap();
+        }
+        if res == -1 {
+            Err("Failed")
+        } else {
+            Ok(res)
+        }
     }
 }
