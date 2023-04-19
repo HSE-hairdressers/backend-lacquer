@@ -1,4 +1,7 @@
-use super::{hdresser::Hairdresser, photo::Photo};
+use super::{
+    hdresser::{Hairdresser, HairdresserIdentity},
+    photo::Photo,
+};
 use serde::{Deserialize, Serialize};
 
 /* main response on user Image */
@@ -63,14 +66,14 @@ impl HairClassifierResponse {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LoginResponse {
     pub result: String,
-    pub response: String,
+    pub response: HairdresserIdentity,
 }
 
 impl LoginResponse {
-    pub fn new(res: &str, resp: &str) -> Self {
+    pub fn new(res: &str, resp: HairdresserIdentity) -> Self {
         Self {
             result: res.to_string(),
-            response: resp.to_string(),
+            response: HairdresserIdentity,
         }
     }
 }
