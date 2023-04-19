@@ -7,7 +7,7 @@ use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 use log::{debug, info};
 
 pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
-    info!(target: "hairdressercatcher", "Collecting hairdressers who has '{hstyle}' hairstyle.");
+    info!(target: "repository/db/get-hairdresser", "Collecting hairdressers who has '{hstyle}' hairstyle.");
     let mut hdressers: Vec<Hairdresser> = vec![];
 
     let connection = sqlite::open(DB_PATH).unwrap();
@@ -29,12 +29,12 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
             "No company".to_string(),
         ));
     }
-    debug!(target: "hairdressercatcher", "{:?}", hdressers);
+    debug!(target: "repository/db/get-hairdresser", "{:?}", hdressers);
     hdressers
 }
 
 pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
-    info!(target: "picURLs", "Collecting picture urls.");
+    info!(target: "repository/db/get-pic-url", "Collecting picture urls.");
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = DatabaseQuery::get_picture_urls(hdresser_id, hstyle);
     connection.execute(&query.0).unwrap();
@@ -48,16 +48,16 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
             statement.read::<String, _>(query.1.as_str()).unwrap()
         ));
     }
-    debug!(target: "picURLs", "{:?}", pictures);
+    debug!(target: "repository/db/get-pic-url", "{:#?}", pictures);
     pictures
 }
 
 impl LoginData {
     pub fn validation(&self) -> Result<HairdresserIdentity, String> {
-        info!(target: "validation", "Starting validation.");
+        info!(target: "repository/db/validation", "Starting validation.");
         let existance = self.exist();
         if existance != -1 {
-            info!(target: "validation", "User exists!");
+            info!(target: "repository/db/validation", "User exists!");
             let res = self.check_password(existance);
             if !res.name.is_empty() {
                 info!(target: "validation", "Successful login!");

@@ -14,8 +14,8 @@ sanitize-filename = "0.4"
 toml = "0.7"
 reqwest = { version = "0.11", features = ["json"] }
 sqlite = "0.30"
-simple_logger = "4.1.0"
 log = "0.4.17"
+env_logger = "0.10.0"
 
 [dependencies.uuid]
 version = "1.2.2"
