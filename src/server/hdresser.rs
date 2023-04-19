@@ -36,7 +36,7 @@ impl Hairdresser {
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct HairdresserIdentity {
     id: i64,
     pub name: String,
