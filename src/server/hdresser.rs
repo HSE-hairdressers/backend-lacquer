@@ -35,3 +35,18 @@ impl Hairdresser {
         self.id
     }
 }
+
+#[derive(Serialize, Debug)]
+pub struct HairdresserIdentity {
+    id: i64,
+    pub name: String,
+}
+
+impl HairdresserIdentity {
+    pub fn new(id: i64, name: String) -> Self {
+        Self {
+            id: (id),
+            name: (name),
+        }
+    }
+}
