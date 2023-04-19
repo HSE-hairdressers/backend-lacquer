@@ -73,7 +73,7 @@ impl LoginResponse {
     pub fn new(res: &str, resp: HairdresserIdentity) -> Self {
         Self {
             result: res.to_string(),
-            response: HairdresserIdentity,
+            response: resp,
         }
     }
 }

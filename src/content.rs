@@ -43,7 +43,7 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
         }
         Err(e) => {
             warn!("Wrong password or email!");
-            LoginResponse::new("Error", &e)
+            LoginResponse::new("Error", e)
         }
     };
 

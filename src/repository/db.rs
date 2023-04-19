@@ -53,7 +53,7 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
 }
 
 impl LoginData {
-    pub fn validation(&self) -> Result<HairdresserIdentity, String> {
+    pub fn validation(&self) -> Result<HairdresserIdentity, HairdresserIdentity> {
         info!(target: "repository/db/validation", "Starting validation.");
         let existance = self.exist();
         if existance != -1 {
@@ -68,7 +68,7 @@ impl LoginData {
         } else {
             info!(target: "validation", "User does not exist!");
         }
-        Err("Your password is incorrect or this account doesn't exist".to_string())
+        Err(HairdresserIdentity::new(-1, "Your password is incorrect or this account doesn't exist".to_string()))
     }
 
     fn exist(&self) -> i64 {
@@ -91,13 +91,13 @@ impl LoginData {
 
         let query = DatabaseQuery::get_password(id, &self.password);
         let mut statement = connection.prepare(&query).unwrap();
-        let mut id: i64 = 0;
+        let mut id: i64 = -1;
         let mut name = String::new();
         while let Ok(sqlite::State::Row) = statement.next() {
             id = statement.read::<i64, _>("id").unwrap();
             name = statement.read::<String, _>("name").unwrap();
         }
-        debug!(target: "validation", "{:?}", res);
+        debug!(target: "validation", "id: {:?} name: {:?}", id, name);
         HairdresserIdentity::new(id, name)
     }
 }
