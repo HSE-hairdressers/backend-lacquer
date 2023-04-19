@@ -1,4 +1,4 @@
-use crate::server::hdresser::Hairdresser;
+use crate::server::hdresser::{Hairdresser, HairdresserIdentity};
 use crate::server::login::LoginData;
 use crate::server::reg::RegistrationData;
 use crate::server::response::RegistrationResponse;
@@ -53,13 +53,13 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
 }
 
 impl LoginData {
-    pub fn validation(&self) -> Result<String, String> {
+    pub fn validation(&self) -> Result<HairdresserIdentity, HairdresserIdentity> {
         info!(target: "repository/db/validation", "Starting validation.");
         let existance = self.exist();
         if existance != -1 {
             info!(target: "repository/db/validation", "User exists!");
             let res = self.check_password(existance);
-            if !res.is_empty() {
+            if !res.name.is_empty() {
                 info!(target: "validation", "Successful login!");
                 return Ok(res);
             } else {
@@ -68,7 +68,7 @@ impl LoginData {
         } else {
             info!(target: "validation", "User does not exist!");
         }
-        Err("Your password is incorrect or this account doesn't exist".to_string())
+        Err(HairdresserIdentity::new(-1, "Your password is incorrect or this account doesn't exist".to_string()))
     }
 
     fn exist(&self) -> i64 {
@@ -85,18 +85,20 @@ impl LoginData {
         res
     }
 
-    fn check_password(&self, id: i64) -> String {
+    fn check_password(&self, id: i64) -> HairdresserIdentity {
         info!(target: "validation", "Checking user password.");
         let connection = sqlite::open(DB_PATH).unwrap();
 
         let query = DatabaseQuery::get_password(id, &self.password);
         let mut statement = connection.prepare(&query).unwrap();
-        let mut res = String::new();
+        let mut id: i64 = -1;
+        let mut name = String::new();
         while let Ok(sqlite::State::Row) = statement.next() {
-            res = statement.read::<String, _>("name").unwrap();
+            id = statement.read::<i64, _>("id").unwrap();
+            name = statement.read::<String, _>("name").unwrap();
         }
-        debug!(target: "validation", "{:?}", res);
-        res
+        debug!(target: "validation", "id: {:?} name: {:?}", id, name);
+        HairdresserIdentity::new(id, name)
     }
 }
 

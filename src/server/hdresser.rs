@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug)]
 pub struct Hairdresser {
@@ -33,5 +33,20 @@ impl Hairdresser {
 
     pub fn get_id(&self) -> i64 {
         self.id
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HairdresserIdentity {
+    id: i64,
+    pub name: String,
+}
+
+impl HairdresserIdentity {
+    pub fn new(id: i64, name: String) -> Self {
+        Self {
+            id: (id),
+            name: (name),
+        }
     }
 }

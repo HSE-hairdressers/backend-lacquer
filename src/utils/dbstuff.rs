@@ -78,7 +78,7 @@ impl DatabaseQuery {
     pub fn get_password(hd_id: i64, pass: &str) -> String {
         let query = format!(
             "
-                SELECT hairdressers.name as name
+                SELECT hairdressers.id as id, hairdressers.name as name
                 FROM hairdressers
                 JOIN dresser_login_info ON hairdressers.id = dresser_login_info.id
                 WHERE hairdressers.id = {hd_id} AND password = '{pass}'
