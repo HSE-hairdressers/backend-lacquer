@@ -34,8 +34,8 @@ pub async fn sys_info() -> impl Responder {
 
 #[post("auth/login")]
 pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
-    info!("Login attempt received!");
-    debug!("{:?}", login_data);
+    info!(target: "content/login", "Login attempt received!");
+    debug!(target: "content/login", "{:?}", login_data);
     let response = match login_data.validation() {
         Ok(i) => {
             info!("Login success.");
@@ -64,8 +64,8 @@ pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpR
      * "password"     : str,
      * "verification" : str,
      * */
-    info!("Registration attempt received!");
-    debug!("{:?}", reg_data);
+    info!(target: "content/registration", "Registration attempt received!");
+    debug!(target: "content/registration", "{:?}", reg_data);
 
     let response = reg_data.register();
 
@@ -104,13 +104,13 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
-    info!("New photo received!");
+    info!(target: "content/img", "New photo received!");
     let filepath = format!("./tmp/{filename}");
     let data = std::fs::read(filepath.clone()).unwrap();
-    info!("Photo opened successfully!");
-    debug!("{:?}", filepath);
+    info!(target: "content/img", "Photo opened successfully!");
+    debug!(target: "content/img", "{:?}", filepath);
 
-    info!("Photo sent to the classifier.");
+    info!(target: "img", "Photo sent to the classifier.");
     let client = reqwest::Client::new();
     let res = client
         .post("http://hairclassificator-web-1:8022/api/test")
@@ -121,8 +121,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
 
     if let Some(hstyle) = hairstyle.get_result() {
-        info!("Photo classified!");
-        debug!("{:?}", hstyle);
+        info!(target: "content/img", "Photo classified!");
+        debug!(target: "content/img","{:?}", hstyle);
         let mut response = UserImageResponse::new("Ok");
         let hdressers: Vec<Hairdresser> = db::get_hairdressers(&hstyle); // vector with hairdressers
         for hdresser in hdressers {
@@ -136,7 +136,7 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             .json(response)
             .into())
     } else {
-        info!(
+        info!(target: "content/img",
             "Photo wasn't recognized with message: \"{}\"",
             hairstyle.message
         );
