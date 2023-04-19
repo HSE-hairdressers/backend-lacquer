@@ -22,4 +22,5 @@ RUN apt -y update
 RUN apt -y install openssl pkg-config libssl-dev
 RUN apt -y install libssl1.1
 RUN apt -y install sqlite3
+ENV RUST_LOG=debug
 ENTRYPOINT ["/usr/local/bin/backend-lacquer"]
