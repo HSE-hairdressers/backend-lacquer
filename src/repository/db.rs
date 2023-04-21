@@ -41,12 +41,11 @@ pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
 
     let mut hdresser = Hairdresser::with_id(hd_id);
     if let Ok(sqlite::State::Row) = statement.next() {
-        let _ = statement.read::<i64, _>(query.1 .0.as_str()).unwrap();
-        res.set_email(&statement.read::<String, _>(query.1 .1.as_str()).unwrap());
-        res.set_name(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
-        res.set_num(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
-        res.set_address(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
-        res.set_company(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
+        hdresser.set_email(&statement.read::<String, _>("email").unwrap());
+        hdresser.set_name(&statement.read::<String, _>("name").unwrap());
+        hdresser.set_num(&statement.read::<String, _>("number").unwrap());
+        hdresser.set_address(&statement.read::<String, _>("address").unwrap());
+        hdresser.set_company(&statement.read::<String, _>("company").unwrap());
     }
     debug!(target: "repository/db/get-hairdresser", "{:?}", hdresser);
     hdresser
