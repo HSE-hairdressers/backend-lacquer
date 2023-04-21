@@ -75,4 +75,11 @@ impl HairdresserIdentity {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct HairdresserId(id);
+pub struct HairdresserId {
+    id: i64,
+}
+impl HairdresserId {
+    pub fn get_id(&self) -> i64 {
+        self.id
+    }
+}

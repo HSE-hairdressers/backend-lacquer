@@ -55,9 +55,9 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
 }
 
 #[post("hairdresser/info")]
-pub async fn get_hairdresser_info(_id: web::Json<HairdresserId>) -> Result<HttpResponse, Error> {
+pub async fn get_hairdresser_info(hd_id: web::Json<HairdresserId>) -> Result<HttpResponse, Error> {
     debug!(target: "content/get_hairdresser_info", "{:?}", hd_id);
-    let hd_id = _id.0;
+    let id = hd_id.get_id();
     let response = db::get_hairdresser(hd_id);
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
