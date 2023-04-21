@@ -73,3 +73,6 @@ impl HairdresserIdentity {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HairdresserId(id);
