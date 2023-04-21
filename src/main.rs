@@ -4,8 +4,7 @@ pub mod server;
 pub mod utils;
 
 use actix_web::{App, HttpServer};
-use content::{img, login, registration, sys_info};
-use log::{debug, error, log_enabled, info, Level};
+use content::{get_hairdresser_info, img, login, registration, sys_info};
 use utils::ipstuff::IpAndPort;
 
 #[tokio::main]
@@ -19,6 +18,7 @@ async fn main() -> std::io::Result<()> {
             .service(sys_info)
             .service(login)
             .service(registration)
+            .service(get_hairdresser_info)
     })
     .bind((config.ip.as_str(), config.port))?
     .run()
