@@ -5,7 +5,6 @@ pub mod utils;
 
 use actix_web::{App, HttpServer};
 use content::{get_hairdresser_info, img, login, registration, sys_info};
-use log::{debug, error, info, log_enabled, Level};
 use utils::ipstuff::IpAndPort;
 
 #[tokio::main]
