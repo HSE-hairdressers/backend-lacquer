@@ -7,7 +7,7 @@ use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 use log::{debug, info};
 
 pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
-    info!(target: "repository/db/get-hairdresser", "Collecting hairdressers who has '{hstyle}' hairstyle.");
+    info!(target: "repository/db/get-hairdressers", "Collecting hairdressers who has '{hstyle}' hairstyle.");
     let mut hdressers: Vec<Hairdresser> = vec![];
 
     let connection = sqlite::open(DB_PATH).unwrap();
@@ -31,6 +31,25 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
     }
     debug!(target: "repository/db/get-hairdresser", "{:?}", hdressers);
     hdressers
+}
+
+pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
+    info!(target: "repository/db/get-hairdresser", "Getting hairdresser with id:'{hd_id}'.");
+    let connection = sqlite::open(DB_PATH).unwrap();
+    let query = DatabaseQuery::get_hdressers_by_hstyle(hstyle);
+    let mut statement = connection.prepare(&query.0).unwrap();
+
+    let mut hdresser = Hairdresser::with_id(hd_id);
+    if let Ok(sqlite::State::Row) = statement.next() {
+        let _ = statement.read::<i64, _>(query.1 .0.as_str()).unwrap();
+        res.set_email(&statement.read::<String, _>(query.1 .1.as_str()).unwrap());
+        res.set_name(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
+        res.set_num(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
+        res.set_address(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
+        res.set_company(&statement.read::<String, _>(query.1 .2.as_str()).unwrap());
+    }
+    debug!(target: "repository/db/get-hairdresser", "{:?}", hdresser);
+    hdresser
 }
 
 pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
@@ -68,7 +87,10 @@ impl LoginData {
         } else {
             info!(target: "validation", "User does not exist!");
         }
-        Err(HairdresserIdentity::new(-1, "Your password is incorrect or this account doesn't exist".to_string()))
+        Err(HairdresserIdentity::new(
+            -1,
+            "Your password is incorrect or this account doesn't exist".to_string(),
+        ))
     }
 
     fn exist(&self) -> i64 {
