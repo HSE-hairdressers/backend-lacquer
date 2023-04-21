@@ -48,7 +48,7 @@ impl Hairdresser {
         self.num = num.to_string();
     }
     pub fn set_address(&mut self, addr: &str) {
-        self.address = addr.to_string();
+        self.addr = addr.to_string();
     }
     pub fn set_company(&mut self, company: &str) {
         self.company = company.to_string();

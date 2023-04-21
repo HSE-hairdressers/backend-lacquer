@@ -12,7 +12,7 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
 
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = DatabaseQuery::get_hdressers_by_hstyle(hstyle);
-    let mut statement = connection.prepare(&query.0).unwrap();
+    let mut statement = connection.prepare(&query).unwrap();
 
     while let Ok(sqlite::State::Row) = statement.next() {
         let cur_data = (
