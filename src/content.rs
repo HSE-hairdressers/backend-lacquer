@@ -1,9 +1,10 @@
 use crate::repository::db;
-use crate::server::login::LoginData;
-use crate::server::reg::RegistrationData;
+use crate::server::hdresser::HairdresserId;
 use crate::server::{
     hdresser::Hairdresser,
+    login::LoginData,
     photo::Photo,
+    reg::RegistrationData,
     response::{DataResponse, HairClassifierResponse, LoginResponse, UserImageResponse},
     sysinfo::SystemInfo,
 };
@@ -47,6 +48,17 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
         }
     };
 
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(response)
+        .into())
+}
+
+#[post("hairdresser/info")]
+pub async fn get_hairdresser_info(_id: web::Json<HairdresserId>) -> Result<HttpResponse, Error> {
+    debug!(target: "content/get_hairdresser_info", "{:?}", hd_id);
+    let hd_id = _id.0;
+    let response = db::get_hairdresser(hd_id);
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
         .json(response)
