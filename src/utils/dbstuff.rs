@@ -51,6 +51,17 @@ impl DatabaseQuery {
         (query.to_owned(), index)
     }
 
+    pub fn get_hdressers_by_id(hd_id: i64) -> String {
+        let query = format!(
+            "
+                SELECT *
+                FROM hairdressers
+                WHERE id = '{hd_id}'
+            "
+        );
+        query.to_owned()
+    }
+
     pub fn get_picture_urls(hd_id: i64, hstyle: &str) -> (String, String) {
         let index = "urls";
         let query = format!(
