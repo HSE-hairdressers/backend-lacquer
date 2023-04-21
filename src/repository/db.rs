@@ -36,7 +36,7 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
 pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
     info!(target: "repository/db/get-hairdresser", "Getting hairdresser with id:'{hd_id}'.");
     let connection = sqlite::open(DB_PATH).unwrap();
-    let query = DatabaseQuery::get_hdressers_by_hstyle(hstyle);
+    let query = DatabaseQuery::get_hdressers_by_id(hd_id);
     let mut statement = connection.prepare(&query.0).unwrap();
 
     let mut hdresser = Hairdresser::with_id(hd_id);
