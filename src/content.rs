@@ -162,43 +162,91 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
 
 #[post("/hairdresser/upload")]
 pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error> {
-    while let Some(mut item) = payload.next().await {
+    while let Some(item) = payload.next().await {
         let mut field = item?;
         let content_type = field.content_disposition();
+        let mut id_value = String::new();
 
-        match content_type.get_name() {
+        let filepath = match content_type.get_name() {
             Some("id") => {
                 let mut bytes = Vec::new();
                 while let Some(chunk) = field.next().await {
                     let chunk = chunk.unwrap();
                     bytes.extend_from_slice(&chunk);
                 }
-                let id_value = String::from_utf8(bytes).unwrap();
-                println!("id: {}", id_value);
+                id_value = String::from_utf8(bytes).unwrap();
+                // println!("id: {}", id_value);
                 debug!(target: "content/upload_image","received photo from hairdresser with id: {:?}", id_value);
+                None
             }
             _ => {
                 let filename = content_type.get_filename().unwrap_or("");
                 debug!(target: "content/upload_image","received photo from hairdresser with name {:?}", filename);
 
-                let _ = std::fs::create_dir("./tmp").unwrap();
-                let _ = std::fs::create_dir("./tmp/test").unwrap();
+                if let Ok(()) = std::fs::create_dir("./tmp") {
+                    debug!(target: "content/upload_image","folder ./tmp successfully created");
+                }
+                if let Ok(()) = std::fs::create_dir("./tmp/test") {
+                    debug!(target: "content/upload_image","folder ./tmp/test successfully created");
+                }
 
                 let filepath = format!("./tmp/test/{filename}");
-                debug!(target: "content/upload_image","try to save file in {:?}", filepath);
-
-                let mut file = web::block(|| std::fs::File::create(filepath)).await??;
+                debug!(target: "content/upload_image","try to save file in {:?}", &filepath);
+                let _filepath = filepath.clone();
+                let mut file = web::block(|| std::fs::File::create(_filepath)).await??;
 
                 while let Some(chunk) = field.next().await {
-                    println!("count");
                     file = web::block(move || {
                         file.write_all(&chunk.ok().unwrap_or_default())
                             .map(|_| file)
                     })
                     .await??
                 }
-                debug!(target: "content/upload_image","saved");
+                debug!(target: "content/upload_image","{} saved", filepath);
+                Some(filepath)
             }
+        };
+
+        if let Some(filepath) = filepath {
+
+                let data = std::fs::read(filepath.clone()).unwrap();
+                info!(target:  "content/upload_image", "Photo opened successfully!");
+                debug!(target: "content/upload_image", "{:?}", filepath);
+
+                info!(target: "content/upload_image", "Photo sent to the classifier.");
+                let client = reqwest::Client::new();
+                let res = client
+                    .post("http://hairclassificator-web-1:8022/api/test")
+                    .body(data.clone())
+                    .send()
+                    .await
+                    .unwrap();
+                let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
+                if let Some(hstyle) = hairstyle.get_result() {
+                    info!(target:  "content/upload_image", "Photo classified!");
+                    debug!(target: "content/upload_image","{:?}", hstyle);
+
+                    #[derive(serde::Serialize)]
+                    struct UploadImageRequest {
+                        photo_bin: Vec<u8>,
+                        folder_name: String,
+                        secret_pass: String,
+                    }
+                    let _res = client
+                        .post("http://79.137.206.63:8000")
+                        .json(&UploadImageRequest {
+                            photo_bin: data,
+                            folder_name: format!("{}/{}", id_value, hstyle),
+                            secret_pass: "wearehairdressers".to_string(),
+                        })
+                        .send()
+                        .await
+                        .unwrap();
+                } else {
+                    info!(target: "content/upload_image",
+                        "Photo wasn't recognized"
+                    );
+                }
         }
     }
     Ok(HttpResponse::Ok().into())
