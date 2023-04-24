@@ -117,12 +117,35 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
     }
 
     info!(target: "content/img", "New photo received!");
-    let filepath = format!("./tmp/{filename}");
-    let data = std::fs::read(filepath.clone()).unwrap();
-    info!(target: "content/img", "Photo opened successfully!");
-    debug!(target: "content/img", "{:?}", filepath);
+    let hstyle_resp = recognize_hairstyle(&format!("./tmp/{filename}")).await;
 
-    info!(target: "img", "Photo sent to the classifier.");
+    let response = if let Some(hstyle) = hstyle_resp {
+        let mut response = UserImageResponse::new("Ok");
+        for hdresser in db::get_hairdressers(&hstyle) {
+            let images = Photo::from_vec(db::get_picture_links(hdresser.get_id(), &hstyle));
+            let data_res = DataResponse::new(hdresser, images);
+            response.add_data(data_res);
+        }
+        response
+    } else {
+        info!(target: "content/img",
+            "Photo wasn't recognized.",
+        );
+        UserImageResponse::new("Error")
+    };
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(response)
+        .into())
+}
+
+async fn recognize_hairstyle(photo_p: &str) -> Option<String> {
+    let filepath = photo_p.to_string();
+    let data = std::fs::read(filepath.clone()).unwrap();
+    info!(target: "content/recognize_hairstyle", "Photo opened successfully!");
+    debug!(target: "content/recognize_hairstyle", "{:?}", filepath);
+
+    info!(target: "content/recognize_hairstyle", "Photo sent to the classifier.");
     let client = reqwest::Client::new();
     let res = client
         .post("http://hairclassificator-web-1:8022/api/test")
@@ -131,33 +154,8 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
         .await
         .unwrap();
     let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
-
-    if let Some(hstyle) = hairstyle.get_result() {
-        info!(target: "content/img", "Photo classified!");
-        debug!(target: "content/img","{:?}", hstyle);
-        let mut response = UserImageResponse::new("Ok");
-        let hdressers: Vec<Hairdresser> = db::get_hairdressers(&hstyle); // vector with hairdressers
-        for hdresser in hdressers {
-            let img_urls: Vec<String> = db::get_picture_links(hdresser.get_id(), &hstyle);
-            let images: Vec<Photo> = Photo::from_vec(&img_urls);
-            let data_res = DataResponse::new(hdresser, images);
-            response.add_data(data_res);
-        }
-        Ok(HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .json(response)
-            .into())
-    } else {
-        info!(target: "content/img",
-            "Photo wasn't recognized with message: \"{}\"",
-            hairstyle.message
-        );
-        let response = UserImageResponse::new("Error");
-        Ok(HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .json(response)
-            .into())
-    }
+    debug!(target: "content/recognize_hairstyle","{:?}", hairstyle);
+    hairstyle.get_result()
 }
 
 #[post("/hairdresser/upload")]
@@ -208,45 +206,32 @@ pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error>
         };
 
         if let Some(filepath) = filepath {
+            let hstyle_resp = recognize_hairstyle(&filepath).await;
+
+            if let Some(hstyle) = hstyle_resp {
+                #[derive(serde::Serialize)]
+                struct UploadImageRequest {
+                    photo_bin: Vec<u8>,
+                    folder_name: String,
+                    secret_pass: String,
+                }
 
                 let data = std::fs::read(filepath.clone()).unwrap();
-                info!(target:  "content/upload_image", "Photo opened successfully!");
-                debug!(target: "content/upload_image", "{:?}", filepath);
-
-                info!(target: "content/upload_image", "Photo sent to the classifier.");
-                let client = reqwest::Client::new();
-                let res = client
-                    .post("http://hairclassificator-web-1:8022/api/test")
-                    .body(data.clone())
+                let _res = reqwest::Client::new()
+                    .post("http://79.137.206.63:8000")
+                    .json(&UploadImageRequest {
+                        photo_bin: data,
+                        folder_name: format!("{}/{}", id_value, hstyle),
+                        secret_pass: "wearehairdressers".to_string(),
+                    })
                     .send()
                     .await
                     .unwrap();
-                let hairstyle = res.json::<HairClassifierResponse>().await.unwrap();
-                if let Some(hstyle) = hairstyle.get_result() {
-                    info!(target:  "content/upload_image", "Photo classified!");
-                    debug!(target: "content/upload_image","{:?}", hstyle);
-
-                    #[derive(serde::Serialize)]
-                    struct UploadImageRequest {
-                        photo_bin: Vec<u8>,
-                        folder_name: String,
-                        secret_pass: String,
-                    }
-                    let _res = client
-                        .post("http://79.137.206.63:8000")
-                        .json(&UploadImageRequest {
-                            photo_bin: data,
-                            folder_name: format!("{}/{}", id_value, hstyle),
-                            secret_pass: "wearehairdressers".to_string(),
-                        })
-                        .send()
-                        .await
-                        .unwrap();
-                } else {
-                    info!(target: "content/upload_image",
-                        "Photo wasn't recognized"
-                    );
-                }
+            } else {
+                info!(target: "content/upload_image",
+                    "Photo wasn't recognized"
+                );
+            }
         }
     }
     Ok(HttpResponse::Ok().into())
