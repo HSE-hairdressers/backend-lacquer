@@ -76,6 +76,15 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
     pictures
 }
 
+pub fn add_photo_to_db(hd_id: i64, photo_name: &str, hstyle: &str) {
+    debug!(target: "repository/db/add-photo-to-db", "adding photo with name {} to hairdresser with id: {}", photo_name, hd_id);
+    let connection = sqlite::open(DB_PATH).unwrap();
+    let query = DatabaseQuery::add_photo_to_db(hd_id, photo_name, hstyle);
+    connection.execute(query).unwrap();
+    debug!(target: "repository/db/add-photo-to-db", "Photo {} successfully added!", photo_name);
+}
+
+
 impl LoginData {
     pub fn validation(&self) -> Result<HairdresserIdentity, HairdresserIdentity> {
         info!(target: "repository/db/validation", "Starting validation.");
