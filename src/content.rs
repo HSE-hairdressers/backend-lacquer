@@ -159,3 +159,47 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             .into())
     }
 }
+
+#[post("/hairdresser/upload")]
+pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error> {
+    while let Some(mut item) = payload.next().await {
+        let mut field = item?;
+        let content_type = field.content_disposition();
+
+        match content_type.get_name() {
+            Some("id") => {
+                let mut bytes = Vec::new();
+                while let Some(chunk) = field.next().await {
+                    let chunk = chunk.unwrap();
+                    bytes.extend_from_slice(&chunk);
+                }
+                let id_value = String::from_utf8(bytes).unwrap();
+                println!("id: {}", id_value);
+                debug!(target: "content/upload_image","received photo from hairdresser with id: {:?}", id_value);
+            }
+            _ => {
+                let filename = content_type.get_filename().unwrap_or("");
+                debug!(target: "content/upload_image","received photo from hairdresser with name {:?}", filename);
+
+                let _ = std::fs::create_dir("./tmp").unwrap();
+                let _ = std::fs::create_dir("./tmp/test").unwrap();
+
+                let filepath = format!("./tmp/test/{filename}");
+                debug!(target: "content/upload_image","try to save file in {:?}", filepath);
+
+                let mut file = web::block(|| std::fs::File::create(filepath)).await??;
+
+                while let Some(chunk) = field.next().await {
+                    println!("count");
+                    file = web::block(move || {
+                        file.write_all(&chunk.ok().unwrap_or_default())
+                            .map(|_| file)
+                    })
+                    .await??
+                }
+                debug!(target: "content/upload_image","saved");
+            }
+        }
+    }
+    Ok(HttpResponse::Ok().into())
+}
