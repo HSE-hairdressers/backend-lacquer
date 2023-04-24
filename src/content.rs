@@ -1,7 +1,6 @@
 use crate::repository::db;
 use crate::server::hdresser::HairdresserId;
 use crate::server::{
-    hdresser::Hairdresser,
     login::LoginData,
     photo::Photo,
     reg::RegistrationData,
@@ -14,6 +13,7 @@ use actix_web::{
 };
 use futures_util::StreamExt as _;
 use log::{debug, info, warn};
+use serde_json::json;
 use uuid::Uuid;
 
 use std::io::Write;
@@ -216,17 +216,20 @@ pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error>
                     secret_pass: String,
                 }
 
+
                 let data = std::fs::read(filepath.clone()).unwrap();
-                let _res = reqwest::Client::new()
+                let payload = json!({
+                    "photo_bin" : data,
+                    "folder_name" : format!("{}/{}", id_value, hstyle),
+                    "secret_pass" : "wearehairdressers".to_string(),}
+            );
+                let response = reqwest::Client::new()
                     .post("http://79.137.206.63:8000")
-                    .json(&UploadImageRequest {
-                        photo_bin: data,
-                        folder_name: format!("{}/{}", id_value, hstyle),
-                        secret_pass: "wearehairdressers".to_string(),
-                    })
+                    .json(&payload)
                     .send()
                     .await
                     .unwrap();
+                info!(target: "content/upload_image", "{}", response.text().await.unwrap());
             } else {
                 info!(target: "content/upload_image",
                     "Photo wasn't recognized"
