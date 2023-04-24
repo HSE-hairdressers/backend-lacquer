@@ -13,7 +13,6 @@ use actix_web::{
 };
 use futures_util::StreamExt as _;
 use log::{debug, info, warn};
-use serde_json::json;
 use uuid::Uuid;
 
 use std::io::Write;
@@ -160,22 +159,20 @@ async fn recognize_hairstyle(photo_p: &str) -> Option<String> {
 
 #[post("/hairdresser/upload")]
 pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error> {
+    let mut filepath = String::new();
+    let mut id_value: i64 = 0;
     while let Some(item) = payload.next().await {
         let mut field = item?;
         let content_type = field.content_disposition();
-        let mut id_value = String::new();
-
-        let filepath = match content_type.get_name() {
+        match content_type.get_name() {
             Some("id") => {
                 let mut bytes = Vec::new();
                 while let Some(chunk) = field.next().await {
                     let chunk = chunk.unwrap();
                     bytes.extend_from_slice(&chunk);
                 }
-                id_value = String::from_utf8(bytes).unwrap();
-                // println!("id: {}", id_value);
+                id_value = String::from_utf8(bytes).unwrap().parse().unwrap();
                 debug!(target: "content/upload_image","received photo from hairdresser with id: {:?}", id_value);
-                None
             }
             _ => {
                 let filename = content_type.get_filename().unwrap_or("");
@@ -188,7 +185,7 @@ pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error>
                     debug!(target: "content/upload_image","folder ./tmp/test successfully created");
                 }
 
-                let filepath = format!("./tmp/test/{filename}");
+                filepath = format!("./tmp/test/{filename}");
                 debug!(target: "content/upload_image","try to save file in {:?}", &filepath);
                 let _filepath = filepath.clone();
                 let mut file = web::block(|| std::fs::File::create(_filepath)).await??;
@@ -200,42 +197,42 @@ pub async fn upload_image(mut payload: Multipart) -> Result<HttpResponse, Error>
                     })
                     .await??
                 }
-                debug!(target: "content/upload_image","{} saved", filepath);
-                Some(filepath)
+                debug!(target: "content/upload_image","{} saved", &filepath);
             }
         };
-
-        if let Some(filepath) = filepath {
-            let hstyle_resp = recognize_hairstyle(&filepath).await;
-
-            if let Some(hstyle) = hstyle_resp {
-                #[derive(serde::Serialize)]
-                struct UploadImageRequest {
-                    photo_bin: Vec<u8>,
-                    folder_name: String,
-                    secret_pass: String,
-                }
-
-
-                let data = std::fs::read(filepath.clone()).unwrap();
-                let payload = json!({
-                    "photo_bin" : data,
-                    "folder_name" : format!("{}/{}", id_value, hstyle),
-                    "secret_pass" : "wearehairdressers".to_string(),}
-            );
-                let response = reqwest::Client::new()
-                    .post("http://79.137.206.63:8000")
-                    .json(&payload)
-                    .send()
-                    .await
-                    .unwrap();
-                info!(target: "content/upload_image", "{}", response.text().await.unwrap());
-            } else {
-                info!(target: "content/upload_image",
-                    "Photo wasn't recognized"
-                );
-            }
+    }
+    let hstyle_resp = recognize_hairstyle(&filepath).await;
+    if let Some(hstyle) = hstyle_resp {
+        #[derive(serde::Serialize)]
+        struct UploadImageRequest {
+            photo_bin: Vec<u8>,
+            folder_name: String,
+            secret_pass: String,
         }
+        let data = std::fs::read(filepath.clone()).unwrap();
+        debug!(target: "content/upload_image", "file {} opened", filepath);
+        let response = reqwest::Client::new()
+            .post("http://79.137.206.63:8000")
+            .json(&UploadImageRequest {
+                photo_bin: data,
+                folder_name: format!("{}/{}", id_value, hstyle),
+                secret_pass: "wearehairdressers".to_string(),
+            })
+            .send()
+            .await
+            .unwrap();
+        #[derive(serde::Serialize, serde::Deserialize, Debug)]
+        struct TempStruct {
+            message: String,
+            status: String,
+        }
+        let resp = response.json::<TempStruct>().await.unwrap();
+        debug!(target: "content/upload_image", "{:?}", resp);
+        db::add_photo_to_db(id_value, &resp.message, &hstyle);
+    } else {
+        info!(target: "content/upload_image",
+            "Photo wasn't recognized"
+        );
     }
     Ok(HttpResponse::Ok().into())
 }
