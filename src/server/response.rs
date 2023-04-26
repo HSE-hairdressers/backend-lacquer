@@ -13,7 +13,7 @@ pub struct UserImageResponse {
 
 impl UserImageResponse {
     pub fn new(result: &str) -> Self {
-        UserImageResponse {
+        Self {
             data: Vec::new(),
             result: (result.to_string()),
         }
@@ -21,6 +21,13 @@ impl UserImageResponse {
 
     pub fn add_data(&mut self, data: DataResponse) {
         self.data.push(data);
+    }
+
+    pub fn with_data(result: &str, data: Vec<DataResponse>) -> Self {
+        Self {
+            data: (data),
+            result: (result.to_string()),
+        }
     }
 }
 
