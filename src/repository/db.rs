@@ -43,9 +43,15 @@ pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
     if let Ok(sqlite::State::Row) = statement.next() {
         hdresser.set_email(&statement.read::<String, _>("email").unwrap());
         hdresser.set_name(&statement.read::<String, _>("name").unwrap());
-        hdresser.set_num(&statement.read::<String, _>("number").unwrap());
-        hdresser.set_address(&statement.read::<String, _>("address").unwrap());
-        hdresser.set_company(&statement.read::<String, _>("company").unwrap());
+        if let Ok(num) = statement.read::<String, _>("number") {
+            hdresser.set_num(&num);
+        }
+        if let Ok(addr) = statement.read::<String, _>("address") {
+            hdresser.set_address(&addr);
+        }
+        if let Ok(company) = statement.read::<String, _>("company") {
+            hdresser.set_company(&company);
+        }
     }
     debug!(target: "repository/db/get-hairdresser", "{:?}", hdresser);
     hdresser
@@ -69,6 +75,15 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
     debug!(target: "repository/db/get-pic-url", "{:#?}", pictures);
     pictures
 }
+
+pub fn add_photo_to_db(hd_id: i64, photo_name: &str, hstyle: &str) {
+    debug!(target: "repository/db/add-photo-to-db", "adding photo with name {} to hairdresser with id: {}", photo_name, hd_id);
+    let connection = sqlite::open(DB_PATH).unwrap();
+    let query = DatabaseQuery::add_photo_to_db(hd_id, photo_name, hstyle);
+    connection.execute(query).unwrap();
+    debug!(target: "repository/db/add-photo-to-db", "Photo {} successfully added!", photo_name);
+}
+
 
 impl LoginData {
     pub fn validation(&self) -> Result<HairdresserIdentity, HairdresserIdentity> {
