@@ -1,7 +1,6 @@
 use crate::repository::db;
 use crate::server::{
-    hdresser::HairdresserId, login::LoginData, photo::Photo, reg::RegistrationData, response::*,
-    sysinfo::SystemInfo,
+    login::LoginData, photo::Photo, reg::RegistrationData, response::*, sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
