@@ -30,9 +30,9 @@ pub async fn sys_info() -> impl Responder {
 }
 
 #[get("/hairdresser/info/{hd_id}")]
-pub async fn get_hairdresser_info(hd_id: web::Json<HairdresserId>) -> impl Responder {
+pub async fn get_hairdresser_info(hd_id: web::Path<i64>) -> impl Responder {
     debug!("{:?}", hd_id);
-    let id = hd_id.get_id();
+    let id = hd_id.into_inner();
     let response = db::get_hairdresser(id);
     web::Json(response)
 }
