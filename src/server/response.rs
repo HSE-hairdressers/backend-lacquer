@@ -8,26 +8,19 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize)]
 pub struct UserImageResponse {
     pub data: Vec<DataResponse>,
-    pub result: String,
 }
 
 impl UserImageResponse {
-    pub fn new(result: &str) -> Self {
-        Self {
-            data: Vec::new(),
-            result: (result.to_string()),
-        }
+    pub fn new() -> Self {
+        Self { data: Vec::new() }
     }
 
     pub fn add_data(&mut self, data: DataResponse) {
         self.data.push(data);
     }
 
-    pub fn with_data(result: &str, data: Vec<DataResponse>) -> Self {
-        Self {
-            data: (data),
-            result: (result.to_string()),
-        }
+    pub fn with_data(data: Vec<DataResponse>) -> Self {
+        Self { data: (data) }
     }
 }
 
