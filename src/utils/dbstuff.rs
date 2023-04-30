@@ -112,4 +112,22 @@ impl DatabaseQuery {
         let query = format!("INSERT INTO dresser_login_info VALUES ({hd_id}, '{pass}');");
         query.to_owned()
     }
+
+    pub fn edit_hairdresser_info(
+        hd_id: i64,
+        email: &str,
+        name: &str,
+        num: &str,
+        addr: &str,
+        com: &str,
+    ) -> String {
+        let query = format!(
+            "
+                UPDATE hairdressers
+                SET email = '{email}', name = '{name}', number = '{num}', address = '{addr}', company = '{com}'
+                WHERE hairdressers.id = {};
+            ", hd_id
+        );
+        query.to_owned()
+    }
 }
