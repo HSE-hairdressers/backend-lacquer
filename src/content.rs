@@ -1,11 +1,6 @@
 use crate::repository::db;
 use crate::server::{
-    hdresser::HairdresserId,
-    login::LoginData,
-    photo::Photo,
-    reg::RegistrationData,
-    response::*,
-    sysinfo::SystemInfo,
+    login::LoginData, photo::Photo, reg::RegistrationData, response::*, sysinfo::SystemInfo,
 };
 use actix_multipart::Multipart;
 use actix_web::{
@@ -30,7 +25,15 @@ pub async fn sys_info() -> impl Responder {
             break;
         }
     }
-    return web::Json(info);
+    web::Json(info)
+}
+
+#[get("/hairdresser/info/{hd_id}")]
+pub async fn get_hairdresser_info(hd_id: web::Path<i64>) -> impl Responder {
+    debug!("{:?}", hd_id);
+    let id = hd_id.into_inner();
+    let response = db::get_hairdresser(id);
+    web::Json(response)
 }
 
 #[post("auth/login")]
@@ -48,17 +51,6 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
         }
     };
 
-    Ok(HttpResponse::Ok()
-        .content_type(ContentType::json())
-        .json(response)
-        .into())
-}
-
-#[post("hairdresser/info")]
-pub async fn get_hairdresser_info(hd_id: web::Json<HairdresserId>) -> Result<HttpResponse, Error> {
-    debug!("{:?}", hd_id);
-    let id = hd_id.get_id();
-    let response = db::get_hairdresser(id);
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
         .json(response)
@@ -133,14 +125,14 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
                 .collect();
             Ok(HttpResponse::Ok()
                 .content_type(ContentType::json())
-                .json(UserImageResponse::with_data("Ok", data))
+                .json(UserImageResponse::with_data(data))
                 .into())
         }
         _ => {
             info!("Photo wasn't recognized!");
             Ok(HttpResponse::BadRequest()
                 .content_type(ContentType::json())
-                .json(UserImageResponse::new("Error"))
+                .json(UserImageResponse::new())
                 .into())
         }
     }
