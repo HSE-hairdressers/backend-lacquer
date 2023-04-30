@@ -57,6 +57,19 @@ pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
     hdresser
 }
 
+pub fn edit_hairdresser(hairdresser: Hairdresser) {
+    let connection = sqlite::open(DB_PATH).unwrap();
+    let query = DatabaseQuery::edit_hairdresser_info(
+        hairdresser.get_id(),
+        hairdresser.get_email(),
+        hairdresser.get_name(),
+        hairdresser.get_number(),
+        hairdresser.get_address(),
+        hairdresser.get_company(),
+    );
+    connection.execute(&query).unwrap();
+}
+
 pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
     info!("Collecting picture urls.");
     let connection = sqlite::open(DB_PATH).unwrap();
