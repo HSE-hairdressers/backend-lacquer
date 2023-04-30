@@ -98,6 +98,11 @@ impl DatabaseQuery {
         query.to_owned()
     }
 
+    pub fn add_photo_to_db(hd_id: i64, photo_name: &str, hstyle: &str) -> String {
+        let query = format!("INSERT INTO style_to_dresser (hairdresser_id, hairstyle_name, img_url) VALUES ('{hd_id}', '{hstyle}', '{hd_id}/{hstyle}/{photo_name}');");
+        query.to_owned()
+    }
+
     pub fn add_user_to_db(email: &str, name: &str, num: &str, addr: &str, com: &str) -> String {
         let query = format!("INSERT INTO hairdressers (email, name, number, address, company) VALUES ('{email}', '{name}', '{num}', '{addr}', '{com}');");
         query.to_owned()
@@ -105,6 +110,24 @@ impl DatabaseQuery {
 
     pub fn change_password(hd_id: i64, pass: &str) -> String {
         let query = format!("INSERT INTO dresser_login_info VALUES ({hd_id}, '{pass}');");
+        query.to_owned()
+    }
+
+    pub fn edit_hairdresser_info(
+        hd_id: i64,
+        email: &str,
+        name: &str,
+        num: &str,
+        addr: &str,
+        com: &str,
+    ) -> String {
+        let query = format!(
+            "
+                UPDATE hairdressers
+                SET email = '{email}', name = '{name}', number = '{num}', address = '{addr}', company = '{com}'
+                WHERE hairdressers.id = {};
+            ", hd_id
+        );
         query.to_owned()
     }
 }
