@@ -57,6 +57,21 @@ impl Hairdresser {
     pub fn get_id(&self) -> i64 {
         self.id
     }
+    pub fn get_email(&self) -> &str {
+        &self.email
+    }
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn get_number(&self) -> &str {
+        &self.num
+    }
+    pub fn get_address(&self) -> &str {
+        &self.addr
+    }
+    pub fn get_company(&self) -> &str {
+        &self.company
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
