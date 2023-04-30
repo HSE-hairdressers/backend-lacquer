@@ -4,10 +4,11 @@ use crate::server::{
 };
 use actix_multipart::Multipart;
 use actix_web::{
-    get, http::header::ContentType, post, web, Error, HttpResponse, Responder, Result,
+    get, http::header::ContentType, patch, post, web, Error, HttpResponse, Responder, Result,
 };
 use futures_util::StreamExt as _;
 use log::{debug, info, warn};
+use serde_json::Value;
 use uuid::Uuid;
 
 use std::io::Write;
@@ -34,6 +35,48 @@ pub async fn get_hairdresser_info(hd_id: web::Path<i64>) -> impl Responder {
     let id = hd_id.into_inner();
     let response = db::get_hairdresser(id);
     web::Json(response)
+}
+
+#[patch("/hairdresser/edit/{hd_id}")]
+pub async fn edit_hairdresser_info(
+    hd_id: web::Path<i64>,
+    to_edit: web::Json<Value>,
+) -> HttpResponse {
+    debug!("Got new editing request {:?} {:?}", hd_id, to_edit);
+    let mut hairdresser = db::get_hairdresser(hd_id.into_inner());
+    debug!("Data before editing: {:?}", hairdresser);
+    if let Some(data) = to_edit.as_object() {
+        for (k, v) in data {
+            match k.as_str() {
+                "email" => {
+                    debug!("Email edited {:?}", v);
+                    hairdresser.set_email(v.as_str().unwrap());
+                }
+                "name" => {
+                    debug!("Name edited {:?}", v);
+                    hairdresser.set_name(v.as_str().unwrap());
+                }
+                "num" => {
+                    debug!("Phone number edited {:?}", v);
+                    hairdresser.set_num(v.as_str().unwrap());
+                }
+                "addr" => {
+                    debug!("Address edited {:?}", v);
+                    hairdresser.set_address(v.as_str().unwrap());
+                }
+                "company" => {
+                    debug!("Company edited {:?}", v);
+                    hairdresser.set_company(v.as_str().unwrap());
+                }
+                &_ => {
+                    debug!("Unknown field {:?} {:?}", k, v);
+                }
+            }
+        }
+    }
+    debug!("Data after editing: {:?}", hairdresser);
+    db::edit_hairdresser(hairdresser);
+    HttpResponse::Ok().finish()
 }
 
 #[post("auth/login")]
