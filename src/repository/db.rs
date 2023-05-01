@@ -1,7 +1,6 @@
 use crate::server::hdresser::{Hairdresser, HairdresserIdentity};
 use crate::server::login::LoginData;
 use crate::server::reg::RegistrationData;
-use crate::server::response::RegistrationResponse;
 use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 
 use log::{debug, info};
@@ -154,7 +153,7 @@ impl LoginData {
 }
 
 impl RegistrationData {
-    pub fn register(&self) -> RegistrationResponse {
+    pub fn register(&self) -> String {
         info!("Starting registration.");
         match self.exist() {
             Err(_) => {
@@ -177,11 +176,11 @@ impl RegistrationData {
                 info!("The user's password added!");
 
                 info!("Successful registration!");
-                RegistrationResponse::new("Ok")
+                "Successful registration!".to_string()
             }
             Ok(_) => {
                 info!("User already exists!");
-                RegistrationResponse::new("Failed")
+                "Registration failed. User already exists!".to_string()
             }
         }
     }

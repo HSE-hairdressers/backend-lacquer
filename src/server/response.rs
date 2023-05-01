@@ -6,34 +6,49 @@ use serde::{Deserialize, Serialize};
 
 /* main response on user Image */
 #[derive(Serialize)]
-pub struct UserImageResponse {
-    pub data: Vec<DataResponse>,
+pub struct HairdresserResponse {
+    data: Vec<HairdresserData>,
 }
 
-impl UserImageResponse {
+impl HairdresserResponse {
+    pub fn builder() -> HairdresserResponseBuilder {
+        HairdresserResponseBuilder::default()
+    }
+}
+
+#[derive(Default)]
+pub struct HairdresserResponseBuilder {
+    data: Vec<HairdresserData>,
+}
+
+impl HairdresserResponseBuilder {
     pub fn new() -> Self {
         Self { data: Vec::new() }
     }
 
-    pub fn add_data(&mut self, data: DataResponse) {
+    pub fn add_data(&mut self, data: HairdresserData) {
         self.data.push(data);
     }
 
-    pub fn with_data(data: Vec<DataResponse>) -> Self {
+    pub fn with_data(data: Vec<HairdresserData>) -> Self {
         Self { data: (data) }
+    }
+
+    pub fn build(self) -> HairdresserResponse {
+        HairdresserResponse { data: (self.data) }
     }
 }
 
 /* Every single hairdresser with their photos */
 #[derive(Serialize)]
-pub struct DataResponse {
+pub struct HairdresserData {
     pub hairdresser: Hairdresser,
     pub images: Vec<Photo>,
 }
 
-impl DataResponse {
+impl HairdresserData {
     pub fn new(h_name: Hairdresser, images: Vec<Photo>) -> Self {
-        DataResponse {
+        HairdresserData {
             hairdresser: (h_name),
             images: (images),
         }
@@ -74,19 +89,6 @@ impl LoginResponse {
         Self {
             result: res.to_string(),
             response: resp,
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RegistrationResponse {
-    pub result: String,
-}
-
-impl RegistrationResponse {
-    pub fn new(res: &str) -> Self {
-        Self {
-            result: res.to_string(),
         }
     }
 }
