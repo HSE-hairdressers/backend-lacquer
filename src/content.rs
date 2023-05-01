@@ -154,7 +154,9 @@ pub async fn img(payload: Multipart) -> Result<HttpResponse, Error> {
                 .into())
         }
     };
+    debug!("Try to delete file {:?}", filepath);
     let _ = std::fs::remove_file(filepath);
+    debug!("Deleted successfully!");
     response
 }
 
@@ -197,7 +199,9 @@ pub async fn upload_image(payload: Multipart) -> Result<HttpResponse, Error> {
         }
         _ => Ok(HttpResponse::BadRequest().into()),
     };
+    debug!("Try to delete file {:?}", filepath);
     let _ = std::fs::remove_file(filepath);
+    debug!("Deleted successfully!");
     response
 }
 
