@@ -7,16 +7,12 @@ pub struct Photo {
 
 impl Photo {
     pub fn new(path: String) -> Self {
-        Photo {
-            img_path: (path),
-        }
+        Photo { img_path: (path) }
     }
     pub fn from_vec(paths: Vec<String>) -> Vec<Self> {
         let mut ans: Vec<Self> = Vec::with_capacity(paths.capacity());
         for path in paths {
-            ans.push(Self::new(
-                path,
-            ));
+            ans.push(Self::new(path));
         }
         ans
     }
