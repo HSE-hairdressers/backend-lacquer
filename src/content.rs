@@ -95,18 +95,20 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
     let response = match login_data.validation() {
         Ok(i) => {
             info!("Login success.");
-            LoginResponse::new("Ok", i)
+            Ok(HttpResponse::Ok()
+                .content_type(ContentType::json())
+                .json(i)
+                .into())
         }
         Err(e) => {
             warn!("Wrong password or email!");
-            LoginResponse::new("Error", e)
+            Ok(HttpResponse::BadRequest()
+                .content_type(ContentType::json())
+                .json(e)
+                .into())
         }
     };
-
-    Ok(HttpResponse::Ok()
-        .content_type(ContentType::json())
-        .json(response)
-        .into())
+    response
 }
 
 #[post("auth/registration")]
