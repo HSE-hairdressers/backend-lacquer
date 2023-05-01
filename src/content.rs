@@ -245,6 +245,7 @@ async fn utilize_multipart(mut payload: Multipart) -> Result<(Option<i64>, PathB
 }
 
 async fn recognize_hairstyle(photo_p: &PathBuf) -> Result<Option<String>, reqwest::Error> {
+    debug!("try to open {:?}", photo_p);
     let data = std::fs::read(photo_p).unwrap();
 
     info!("Photo opened successfully!");
