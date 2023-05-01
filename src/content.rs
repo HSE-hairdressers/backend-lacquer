@@ -8,7 +8,7 @@ use actix_web::{
 };
 use futures_util::StreamExt as _;
 use log::{debug, info, warn};
-use serde_json::Value;
+use serde_json::{Value, json};
 use uuid::Uuid;
 
 use std::io::Write;
@@ -113,9 +113,7 @@ pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpR
      * */
     info!("Registration attempt received!");
     debug!("{:?}", reg_data);
-
-    let response = reg_data.register();
-
+    let response = json!({"result" : reg_data.register()});
     Ok(HttpResponse::Ok()
         .content_type(ContentType::json())
         .json(response)
@@ -159,23 +157,23 @@ pub async fn img(mut payload: Multipart) -> Result<HttpResponse, Error> {
             let hairdressers = db::get_hairdressers(&hstyle);
             let data = hairdressers
                 .into_iter()
-                .map(|hdresser| {
-                    DataResponse::new(
-                        hdresser.clone(),
-                        Photo::from_vec(db::get_picture_links(hdresser.get_id(), &hstyle)),
+                .map(|hd| {
+                    HairdresserData::new(
+                        hd.clone(),
+                        Photo::from_vec(db::get_picture_links(hd.get_id(), &hstyle)),
                     )
                 })
                 .collect();
             Ok(HttpResponse::Ok()
                 .content_type(ContentType::json())
-                .json(UserImageResponse::with_data(data))
+                .json(HairdresserResponseBuilder::with_data(data).build())
                 .into())
         }
         _ => {
             info!("Photo wasn't recognized!");
             Ok(HttpResponse::BadRequest()
                 .content_type(ContentType::json())
-                .json(UserImageResponse::new())
+                .json(HairdresserResponse::builder().build())
                 .into())
         }
     }
