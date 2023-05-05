@@ -14,10 +14,13 @@ use uuid::Uuid;
 use std::io::Write;
 use std::path::PathBuf;
 
+/// This service returns information about the version of current running server.
 #[get("/system/info")]
 pub async fn sys_info() -> impl Responder {
     let mut info = SystemInfo::default();
 
+    /// Parse Cargo.toml file.
+    /// Extract name of the package and the version.
     for line in std::fs::read_to_string("./Cargo.toml").unwrap().split("\n") {
         if line.contains("name =") {
             info.name = line.replace("name = ", "").replace("\"", "");
@@ -29,24 +32,30 @@ pub async fn sys_info() -> impl Responder {
     web::Json(info)
 }
 
+/// This service returns information about the hairdresser by its id.
 #[get("/hairdresser/info/{hd_id}")]
 pub async fn get_hairdresser_info(hd_id: web::Path<i64>) -> impl Responder {
     debug!("{:?}", hd_id);
 
     let id = hd_id.into_inner();
+    /// Use `db` module in order to communicate with database.
     let response = db::get_hairdresser(id);
     web::Json(response)
 }
 
+/// This service receive hairdresser's id and values in JSON that needs to be changed.
 #[patch("/hairdresser/edit/{hd_id}")]
 pub async fn edit_hairdresser_info(
     hd_id: web::Path<i64>,
     to_edit: web::Json<Value>,
 ) -> HttpResponse {
     debug!("Got new editing request {:?} {:?}", hd_id, to_edit);
+    /// Use `db` module in order to get old hairdresser's information
+    /// from the database.
     let mut hairdresser = db::get_hairdresser(hd_id.into_inner());
     debug!("Data before editing: {:?}", hairdresser);
 
+    /// Catch changed information from the Json object.
     if let Some(data) = to_edit.as_object() {
         for (k, v) in data {
             match k.as_str() {
@@ -83,15 +92,20 @@ pub async fn edit_hairdresser_info(
     }
     debug!("Data after editing: {:?}", hairdresser);
 
+    
+    /// Use `db` module in order to update hairdresser's information in the database.
     db::edit_hairdresser(hairdresser);
     HttpResponse::Ok().finish()
 }
 
+/// This service receives login attempt and then check if user's password and login are correct.
 #[post("auth/login")]
 pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Error> {
     info!("Login attempt received!");
     debug!("{:?}", login_data);
 
+    /// Use method `validation` implemented in `db` module 
+    /// that helps to communicate with the database;
     let response = match login_data.validation() {
         Ok(i) => {
             info!("Login success.");
@@ -111,6 +125,8 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
     response
 }
 
+/// This service receives registration attempt and then check if user already exists.
+/// If no then try to add new user with given username (email) and password.
 #[post("auth/registration")]
 pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpResponse, Error> {
     info!("Registration attempt received!");
@@ -123,6 +139,10 @@ pub async fn registration(reg_data: web::Json<RegistrationData>) -> Result<HttpR
         .into())
 }
 
+/// This service receives multipart a single picture.
+/// Then sends this picture to the AI.
+/// If service gets successfull response, then it find all hairdressers that have photos with
+/// current hairstyle.
 #[post("/img")]
 pub async fn img(payload: Multipart) -> Result<HttpResponse, Error> {
     let (_, filepath) = utilize_multipart(payload).await.unwrap();
@@ -162,8 +182,15 @@ pub async fn img(payload: Multipart) -> Result<HttpResponse, Error> {
     response
 }
 
+/// This service receives multipart with "id" and "img" fields.
+/// Then saves "img" photo to the database in hairdresser's profile by its "id".
 #[post("/hairdresser/upload")]
 pub async fn upload_image(payload: Multipart) -> Result<HttpResponse, Error> {
+    ///
+    /// # Arguments
+    ///
+    /// *`payload` - A Multipart object with "id" and "img" fields.
+    ///
     let (id, filepath) = utilize_multipart(payload).await.unwrap();
     let id_value = id.unwrap();
 
@@ -180,6 +207,7 @@ pub async fn upload_image(payload: Multipart) -> Result<HttpResponse, Error> {
             debug!("file {:?} opened", filepath);
             info!("Making response for adding photo to the db");
 
+            /// Make request to web-service that helps to save hairdresser's photo.
             let response = reqwest::Client::new()
                 .post("http://79.137.206.63:8000")
                 .json(&UploadImageRequest {
@@ -207,7 +235,13 @@ pub async fn upload_image(payload: Multipart) -> Result<HttpResponse, Error> {
     response
 }
 
+/// Function that gets Multipart object and then try to extract "id" and "img" fields from them.
 async fn utilize_multipart(mut payload: Multipart) -> Result<(Option<i64>, PathBuf), Error> {
+    ///
+    /// # Arguments
+    ///
+    /// *`payload` - A Multipart object that needs to be extracted.
+    ///
     let mut id = None;
     let mut filepath = PathBuf::new();
     while let Some(item) = payload.next().await {
@@ -250,7 +284,16 @@ async fn utilize_multipart(mut payload: Multipart) -> Result<(Option<i64>, PathB
     Ok((id, filepath))
 }
 
+/// Function that receives path to the photo and then tries to recognize hairstyle.
 async fn recognize_hairstyle(photo_p: &PathBuf) -> Result<Option<String>, reqwest::Error> {
+    /// Function opens photo by its path.
+    /// Then sends it to the AI that will try to recognize a hairstyle.
+    /// If recognized successfull then send result back.
+    ///
+    /// # Arguments
+    ///
+    /// *`photo_p` - A path to the photo that needs to be recognized on local machine.
+    ///
     debug!("try to open {:?}", photo_p);
     let data = std::fs::read(photo_p).unwrap();
 
