@@ -5,6 +5,11 @@ use crate::utils::dbstuff::{DatabaseQuery, DB_PATH};
 
 use log::{debug, info};
 
+/// Returns a vector with hairdressers by given hairstyle.
+///
+/// # Arguments
+///
+/// * `hstyle` - A string that holds hairstyle to find hairdressers..
 pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
     info!("Collecting hairdressers who has '{}' hairstyle.", hstyle);
     let mut hdressers: Vec<Hairdresser> = vec![];
@@ -32,6 +37,11 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
     hdressers
 }
 
+/// Returns a hairdresser by given id.
+///
+/// # Arguments
+///
+/// * `id` - A number that holds hairdresser's id in database.
 pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
     info!("Getting hairdresser with id:'{}'.", hd_id);
     let connection = sqlite::open(DB_PATH).unwrap();
@@ -56,6 +66,11 @@ pub fn get_hairdresser(hd_id: i64) -> Hairdresser {
     hdresser
 }
 
+/// Function that edits hairdresser's info.
+///
+/// # Arguments
+///
+/// * `hairdresser` - An object that represents a hairdresser.
 pub fn edit_hairdresser(hairdresser: Hairdresser) {
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = DatabaseQuery::edit_hairdresser_info(
@@ -69,6 +84,12 @@ pub fn edit_hairdresser(hairdresser: Hairdresser) {
     connection.execute(&query).unwrap();
 }
 
+/// Returns a vector with photo URLs by given hairdresser's id and hairstyle.
+///
+/// # Arguments
+///
+/// * `id` - A number that holds hairdresser's id in database.
+/// * `hstyle` - A string that holds hairstyle to find hairdressers..
 pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
     info!("Collecting picture urls.");
     let connection = sqlite::open(DB_PATH).unwrap();
@@ -88,6 +109,13 @@ pub fn get_picture_links(hdresser_id: i64, hstyle: &str) -> Vec<String> {
     pictures
 }
 
+/// Function that uploads photo to the database by hairstyle and hairdresser's id.
+///
+/// # Arguments
+///
+/// * `hd_id` - A number that holds hairdresser's id in database.
+/// * `photo_name` - A string that holds photo's name.
+/// * `hstyle` - A string that holds hairstyle to find hairdressers..
 pub fn add_photo_to_db(hd_id: i64, photo_name: &str, hstyle: &str) {
     debug!(
         "adding photo with name {} to hairdresser with id: {}",
@@ -100,6 +128,8 @@ pub fn add_photo_to_db(hd_id: i64, photo_name: &str, hstyle: &str) {
 }
 
 impl LoginData {
+    /// Method that checks correctness of hairdresser's username and password.
+    /// Returns a hairdresser's identity.
     pub fn validation(&self) -> Result<HairdresserIdentity, HairdresserIdentity> {
         info!("Starting validation.");
         let existance = self.exist();
@@ -121,6 +151,7 @@ impl LoginData {
         ))
     }
 
+    /// Returns a hairdresser's id if hairdresser exists in database.
     fn exist(&self) -> i64 {
         info!("Checking if user in database.");
         let connection = sqlite::open(DB_PATH).unwrap();
@@ -135,6 +166,7 @@ impl LoginData {
         res
     }
 
+    /// Method that checks hairdresser's password correctness.
     fn check_password(&self, id: i64) -> HairdresserIdentity {
         info!("Checking user password.");
         let connection = sqlite::open(DB_PATH).unwrap();
@@ -153,6 +185,7 @@ impl LoginData {
 }
 
 impl RegistrationData {
+    /// That adds hairdresser to the database
     pub fn register(&self) -> String {
         info!("Starting registration.");
         match self.exist() {
@@ -185,6 +218,7 @@ impl RegistrationData {
         }
     }
 
+    /// Returns a hairdresser's id if hairdresser exists in database.
     fn exist(&self) -> Result<i64, &str> {
         info!("Checking if user in database.");
         let connection = sqlite::open(DB_PATH).unwrap();
