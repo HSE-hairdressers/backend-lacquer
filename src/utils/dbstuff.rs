@@ -14,10 +14,16 @@ pub const HAIRSTYLES: &'static [&str] = &[
     "buzz",
 ];
 
+/// In order to communicate with database we use SQL queries.
 #[derive(Debug)]
 pub struct DatabaseQuery;
 
 impl DatabaseQuery {
+    /// Returns a query for getting hairdresser's id by its email and identifier from database.
+    ///
+    /// # Arguments
+    ///
+    /// * `email` - A string that holds the email of the hairdresser.
     pub fn get_hdresser_id(hdresser_email: &str) -> (String, String) {
         let index = "id";
         let query = format!(
@@ -26,12 +32,11 @@ impl DatabaseQuery {
         (query.to_owned(), index.to_string())
     }
 
-    pub fn create_hdresser(hd_email: &str, hd_password: &str) -> String {
-        let _query = format!("INSERT INTO hairdressers VALUES ('{hd_email}', '{hd_password}');");
-        // query.to_owned();
-        todo!("add hdresser by email and password")
-    }
-
+    /// Returns a query for getting hairdressers that have works (photos) with given hairstyle.
+    ///
+    /// # Arguments
+    ///
+    /// * `hstyle` - A string that holds a hairstyle.
     pub fn get_hdressers_by_hstyle(hstyle: &str) -> (String, (String, String, String)) {
         let index = (
             "hd_id".to_string(),
@@ -51,6 +56,11 @@ impl DatabaseQuery {
         (query.to_owned(), index)
     }
 
+    /// Returns a query for getting hairdresser by its id.
+    ///
+    /// # Arguments
+    ///
+    /// * `hd_id` - A number that holds hairdresser's id in database.
     pub fn get_hdressers_by_id(hd_id: i64) -> String {
         let query = format!(
             "
@@ -62,6 +72,12 @@ impl DatabaseQuery {
         query.to_owned()
     }
 
+    /// Returns all picture urls from hairdresser by hairstyle.
+    ///
+    /// # Arguments
+    ///
+    /// * `hd_id` - A number that holds hairdresser's id in database.
+    /// * `hstyle` - A string that holds a name of a hairstyle.
     pub fn get_picture_urls(hd_id: i64, hstyle: &str) -> (String, String) {
         let index = "urls";
         let query = format!(
@@ -76,6 +92,11 @@ impl DatabaseQuery {
         (query.to_owned(), index.to_string())
     }
 
+    /// Return a query that says if given email exists in databse;
+    ///
+    /// # Arguments
+    ///
+    /// * `email` - A string that holds the email to be checked.
     pub fn is_email_exist(email: &str) -> String {
         let query = format!(
             "
@@ -86,6 +107,12 @@ impl DatabaseQuery {
         query.to_owned()
     }
 
+    /// Returns a query checking if password is correct.
+    ///
+    /// # Arguments
+    ///
+    /// * `hd_id` - A number that holds hairdresser's id in database.
+    /// * `pass` - A string that holds the password of the hairdresser.
     pub fn get_password(hd_id: i64, pass: &str) -> String {
         let query = format!(
             "
@@ -98,21 +125,53 @@ impl DatabaseQuery {
         query.to_owned()
     }
 
+    /// Returns a query for saving photo in database;
+    ///
+    /// # Arguments
+    ///
+    /// * `hd_id` - A number that holds hairdresser's id in database.
+    /// * `photo_name` - A string that holds photo's name.
+    /// * `hstyle` - A string that holds a hairstyle for given photo.
     pub fn add_photo_to_db(hd_id: i64, photo_name: &str, hstyle: &str) -> String {
         let query = format!("INSERT INTO style_to_dresser (hairdresser_id, hairstyle_name, img_url) VALUES ('{hd_id}', '{hstyle}', '{hd_id}/{hstyle}/{photo_name}');");
         query.to_owned()
     }
 
+    /// Returns a query for adding hairdresser to the database.
+    ///
+    /// # Arguments
+    ///
+    /// * `email` - A string that holds the email of the hairdresser.
+    /// * `name` - A string that holds the name of the hairdresser.
+    /// * `num` - A string that holds the phone number of the hairdresser.
+    /// * `addr` - A string that holds the address of the hairdresser.
+    /// * `com` - A string that holds the company of the hairdresser.
     pub fn add_user_to_db(email: &str, name: &str, num: &str, addr: &str, com: &str) -> String {
         let query = format!("INSERT INTO hairdressers (email, name, number, address, company) VALUES ('{email}', '{name}', '{num}', '{addr}', '{com}');");
         query.to_owned()
     }
 
+    /// Returns a query for changing hairdresser's password.
+    ///
+    /// # Arguments
+    ///
+    /// * `hd_id` - A number that holds hairdresser's id in database.
+    /// * `pass` - A string that holds the password of the hairdresser.
     pub fn change_password(hd_id: i64, pass: &str) -> String {
         let query = format!("INSERT INTO dresser_login_info VALUES ({hd_id}, '{pass}');");
         query.to_owned()
     }
 
+    /// Returns a query for editing hairdresser's info.
+    ///
+    /// # Arguments
+    ///
+    /// * `hd_id` - A number that holds hairdresser's id in database.
+    /// * `email` - A string that holds the email of the hairdresser.
+    /// * `name` - A string that holds a name to the hairdresser.
+    /// * `num` - A string slice that holds hairdresser's phone number.
+    /// * `addr` - A string that holds the hairdresser's address.
+    /// * `com` - A string that holds a name of a company where the hairdresser works.
     pub fn edit_hairdresser_info(
         hd_id: i64,
         email: &str,
