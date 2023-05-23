@@ -1,7 +1,7 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// All humans loves photos.
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Photo {
     /// URL of the photo.
     pub img_path: String,

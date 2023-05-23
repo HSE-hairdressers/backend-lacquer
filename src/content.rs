@@ -8,6 +8,7 @@ use actix_web::{
 };
 use futures_util::StreamExt as _;
 use log::{debug, info, warn};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
@@ -40,6 +41,23 @@ pub async fn get_hairdresser_info(hd_id: web::Path<i64>) -> impl Responder {
     let id = hd_id.into_inner();
     /// Use `db` module in order to communicate with database.
     let response = db::get_hairdresser(id);
+    web::Json(response)
+}
+
+#[get("/hairdresser/images/{hd_id}")]
+pub async fn get_hairdresser_images(hd_id: web::Path<i64>) -> impl Responder {
+    debug!("{:?}", hd_id);
+
+    let id = hd_id.into_inner();
+
+    #[derive(Debug, Serialize, Deserialize)]
+    struct HairdresserImages {
+        images: Vec<Photo>,
+    };
+    let response = HairdresserImages {
+        images: Photo::from_vec(db::get_images(id)),
+    };
+
     web::Json(response)
 }
 
@@ -92,7 +110,6 @@ pub async fn edit_hairdresser_info(
     }
     debug!("Data after editing: {:?}", hairdresser);
 
-    
     /// Use `db` module in order to update hairdresser's information in the database.
     db::edit_hairdresser(hairdresser);
     HttpResponse::Ok().finish()
@@ -104,7 +121,7 @@ pub async fn login(login_data: web::Json<LoginData>) -> Result<HttpResponse, Err
     info!("Login attempt received!");
     debug!("{:?}", login_data);
 
-    /// Use method `validation` implemented in `db` module 
+    /// Use method `validation` implemented in `db` module
     /// that helps to communicate with the database;
     let response = match login_data.validation() {
         Ok(i) => {
