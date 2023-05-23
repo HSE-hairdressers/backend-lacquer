@@ -5,7 +5,8 @@ pub mod utils;
 
 use actix_web::{App, HttpServer};
 use content::{
-    edit_hairdresser_info, get_hairdresser_info, img, login, registration, sys_info, upload_image,
+    edit_hairdresser_info, get_hairdresser_images, get_hairdresser_info, img, login, registration,
+    sys_info, upload_image,
 };
 use utils::ipstuff::IpAndPort;
 
@@ -23,6 +24,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_hairdresser_info)
             .service(edit_hairdresser_info)
             .service(upload_image)
+            .service(get_hairdresser_images)
     })
     .bind((config.ip.as_str(), config.port))?
     .run()

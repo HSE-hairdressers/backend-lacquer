@@ -37,6 +37,24 @@ pub fn get_hairdressers(hstyle: &str) -> Vec<Hairdresser> {
     hdressers
 }
 
+pub fn get_images(hd_id: i64) -> Vec<String> {
+    info!("Collecting images from hairdresser with id '{}'.", hd_id);
+    let mut images: Vec<String> = vec![];
+
+    let connection = sqlite::open(DB_PATH).unwrap();
+    let query = DatabaseQuery::get_images_by_hdresser(hd_id);
+    let mut statement = connection.prepare(&query).unwrap();
+
+    while let Ok(sqlite::State::Row) = statement.next() {
+        images.push(format!(
+            "http://79.137.206.63:8000/{}",
+            statement.read::<String, _>("img").unwrap()
+        ));
+    }
+    // debug!("{:?}", images);
+    images
+}
+
 /// Returns a hairdresser by given id.
 ///
 /// # Arguments

@@ -49,7 +49,6 @@ impl Hairdresser {
         }
     }
 
-    
     /// Returns a hairdresser with the given id.
     ///
     /// # Arguments

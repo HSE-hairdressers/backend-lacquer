@@ -37,23 +37,38 @@ impl DatabaseQuery {
     /// # Arguments
     ///
     /// * `hstyle` - A string that holds a hairstyle.
-    pub fn get_hdressers_by_hstyle(hstyle: &str) -> (String, (String, String, String)) {
+    pub fn get_hdressers_by_hstyle(
+        hstyle: &str,
+    ) -> (String, (String, String, String, String, String, String)) {
         let index = (
             "hd_id".to_string(),
             "hd_email".to_string(),
             "hd_name".to_string(),
+            "hd_number".to_string(),
+            "hd_address".to_string(),
+            "hd_company".to_string(),
         );
         let query = format!(
             "
-                SELECT DISTINCT hairdressers.id as {}, hairdressers.email as {}, hairdressers.name as {}
+                SELECT DISTINCT hairdressers.id as {}, hairdressers.email as {}, hairdressers.name as {}, hairdressers.number as {}, hairdressers.address as {}, hairdressers.company as {}
                 FROM style_to_dresser
                 JOIN hairdressers ON hairdresser_id = hairdressers.id
                 JOIN hairstyles ON hairstyle_name = hairstyles.name
                 WHERE hairstyles.name = '{hstyle}'
             ",
-            index.0, index.1, index.2
+            index.0, index.1, index.2, index.3, index.4, index.5
         );
         (query.to_owned(), index)
+    }
+
+    pub fn get_images_by_hdresser(hd_id: i64) -> String {
+        let query = format!(
+            "
+                SELECT img_url as img FROM style_to_dresser
+                WHERE hairdresser_id = '{hd_id}';
+            "
+        );
+        query.to_owned()
     }
 
     /// Returns a query for getting hairdresser by its id.
