@@ -1,4 +1,4 @@
-name: Rust
+name: Upload binary to server
 
 on:
   push:
@@ -14,6 +14,7 @@ jobs:
       
   upload_to_server:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
       - name: Build release
