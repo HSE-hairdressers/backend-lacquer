@@ -1,0 +1,30 @@
+name: Rust
+
+on:
+  push:
+    branches: "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+      
+  upload_to_server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build release
+        run: cargo build --release
+      - name: server upload
+      - uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          source: "./target/release/backend-laqcuer"
+          target: "~/Development/course_work/backend-bin/"
+          key: ${{ secrets.SSH_KEY }}
+          
