@@ -76,7 +76,7 @@ jobs:
   
   run_on_the_server:
     runs-on: ubuntu-latest
-    needs: upload_artifacts
+    needs: upload_to_the_server
     steps:
       - name: Executing run.sh on the server
         uses: appleboy/ssh-action@v0.1.10
