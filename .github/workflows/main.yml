@@ -19,13 +19,23 @@ jobs:
       - name: Build release
         uses: actions/checkout@v3
       - run: cargo build --release
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./target/release/backend-laqcuer
+          name: backend-laqcuer
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: backend-laqcuer
+          path: distfiles
+          
       - name: Upload to the server
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
-          source: "./target/release/backend-laqcuer"
-          target: "~/Development/course_work/backend-bin/"
+          source: distfiles/*
+          target: ~/Development/course_work/backend-bin/
           key: ${{ secrets.SSH_KEY }}
           
