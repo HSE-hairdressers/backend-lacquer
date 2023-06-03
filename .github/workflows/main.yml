@@ -23,10 +23,30 @@ jobs:
         with:
           path: ./target/release/backend-lacquer
           name: backend-laqcuer
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./docker-compose.yml
+          name: docker-compose.yml
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./Dockerfile
+          name: Dockerfile
 
       - uses: actions/download-artifact@v3
         with:
           name: backend-laqcuer
+          path: distfiles
+       
+      - uses: actions/download-artifact@v3
+        with:
+          name: docker-compose.yml
+          path: distfiles
+          
+      - uses: actions/download-artifact@v3
+        with:
+          name: Dockerfile
           path: distfiles
           
       - name: Upload to the server
