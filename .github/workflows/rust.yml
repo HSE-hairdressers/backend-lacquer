@@ -30,18 +30,18 @@ jobs:
     - name: Build
       run: cargo build --verbose
       
-  upload_web_app:
+  upload_backend_lacquer_artifact:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v3
       - name: Build release
         run: |
-          cargo build --release --bin web_server
+          cargo build --release
           ls -la
       - name: Upload a build artifact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: web_server
-          path: ./target/release/backend_lacquer
+          path: ./target/release/backend-lacquer
           retention-days: 5
