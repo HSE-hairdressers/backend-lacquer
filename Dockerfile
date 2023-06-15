@@ -8,6 +8,6 @@ ENV RUST_LOG=debug
 
 # COPY ./hairdressers.db ./hairdressers.db
 # COPY ./Cargo.toml ./Cargo.toml
-COPY ./distfiles/backend-lacquer /usr/local/bin
+COPY distfiles/backend-lacquer /usr/local/bin
 
 ENTRYPOINT ["/usr/local/bin/backend-lacquer"]
