@@ -12,41 +12,41 @@ jobs:
 #     - name: Build
 #       run: cargo build --verbose
       
-  upload_artifacts:
-    runs-on: ubuntu-latest
-#     needs: build
-    steps:
-      - name: Build release
-        uses: actions/checkout@v3
-      - run: cargo build --release
+#   upload_artifacts:
+#     runs-on: ubuntu-latest
+# #     needs: build
+#     steps:
+#       - name: Build release
+#         uses: actions/checkout@v3
+#       - run: cargo build --release
       
-      - name: Upload binary file
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./target/release/backend-lacquer
-          name: backend-laqcuer
+#       - name: Upload binary file
+#         uses: actions/upload-artifact@v3
+#         with:
+#           path: ./target/release/backend-lacquer
+#           name: backend-laqcuer
           
-      - name: Upload docker-compose file 
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./docker-compose.yml
-          name: docker-compose.yml
+#       - name: Upload docker-compose file 
+#         uses: actions/upload-artifact@v3
+#         with:
+#           path: ./docker-compose.yml
+#           name: docker-compose.yml
           
-      - name: Upload Dockerfile 
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./Dockerfile
-          name: Dockerfile
+#       - name: Upload Dockerfile 
+#         uses: actions/upload-artifact@v3
+#         with:
+#           path: ./Dockerfile
+#           name: Dockerfile
       
-      - name: Upload run script
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./run.sh
-          name: run.sh
+#       - name: Upload run script
+#         uses: actions/upload-artifact@v3
+#         with:
+#           path: ./run.sh
+#           name: run.sh
           
   make_docker_image:
     runs-on: ubuntu-latest
-    needs: upload_artifacts
+#     needs: upload_artifacts
     steps:
 
        
