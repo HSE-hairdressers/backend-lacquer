@@ -43,59 +43,94 @@ jobs:
         with:
           path: ./run.sh
           name: run.sh
-  
-  upload_to_the_server:
+          
+  make_docker_image:
     runs-on: ubuntu-latest
     needs: upload_artifacts
     steps:
-      - name: Download binary to distfiles folder
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: backend-laqcuer
-          path: distfiles
+          name: myDocker/repository
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: Dockerfile
+#       - name: Download binary to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: backend-laqcuer
+#           path: distfiles
        
-      - name: Download docker-compose to distfiles folder
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-compose.yml
-          path: distfiles
+#       - name: Download docker-compose to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: docker-compose.yml
+#           path: distfiles
           
-      - name: Download Dockerfile to distfiles folder
-        uses: actions/download-artifact@v3
-        with:
-          name: Dockerfile
-          path: distfiles
-          
-      - name: Download run script to distfiles folder
-        uses: actions/download-artifact@v3
-        with:
-          name: run.sh
-          path: distfiles
-          
-      - name: Upload files to the server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          port: ${{ secrets.PORT }}
-          source: distfiles/*
-          target: ~/Development/course_work/backend-bin/
-          key: ${{ secrets.SSH_KEY }}
-          timeout: 100s
+#       - name: Download Dockerfile to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: Dockerfile
+#           path: distfiles
+#       - uses: actions/checkout@v2
+#       - name: Build the Docker image
+#         run: docker build distfiles --file Dockerfile --tag app:$(date +%s)
   
-  run_on_the_server:
-    runs-on: ubuntu-latest
-    needs: upload_to_the_server
-    steps:
-      - name: Executing run.sh on the server
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            cd  ~/Development/course_work/backend-bin/distfiles/
-            chmod +x ./run.sh
-            ./run.sh
+#   upload_to_the_server:
+#     runs-on: ubuntu-latest
+#     needs: upload_artifacts
+#     steps:
+#       - name: Download binary to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: backend-laqcuer
+#           path: distfiles
+       
+#       - name: Download docker-compose to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: docker-compose.yml
+#           path: distfiles
+          
+#       - name: Download Dockerfile to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: Dockerfile
+#           path: distfiles
+          
+#       - name: Download run script to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: run.sh
+#           path: distfiles
+          
+#       - name: Upload files to the server
+#         uses: appleboy/scp-action@v0.1.4
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USERNAME }}
+#           port: ${{ secrets.PORT }}
+#           source: distfiles/*
+#           target: ~/Development/course_work/backend-bin/
+#           key: ${{ secrets.SSH_KEY }}
+#           timeout: 100s
+  
+  
+  
+#   run_on_the_server:
+#     runs-on: ubuntu-latest
+#     needs: upload_to_the_server
+#     steps:
+#       - name: Executing run.sh on the server
+#         uses: appleboy/ssh-action@v0.1.10
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USERNAME }}
+#           key: ${{ secrets.SSH_KEY }}
+#           port: ${{ secrets.PORT }}
+#           script: |
+#             cd  ~/Development/course_work/backend-bin/distfiles/
+#             chmod +x ./run.sh
+#             ./run.sh
           
