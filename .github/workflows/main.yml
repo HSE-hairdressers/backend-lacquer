@@ -62,8 +62,7 @@ jobs:
 #           name: Dockerfile
 #           path: distfiles
           
-      - name: check files
-        run: ls -la distfiles
+
           
       - uses: actions/checkout@v3
       - name: Download binary to distfiles folder
