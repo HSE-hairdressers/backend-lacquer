@@ -66,6 +66,9 @@ jobs:
           name: Dockerfile
           path: distfiles
           
+      - name: check files
+        run: ls -la
+          
       - uses: actions/checkout@v3
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@v5
