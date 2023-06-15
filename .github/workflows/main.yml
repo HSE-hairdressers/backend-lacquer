@@ -54,17 +54,17 @@ jobs:
           name: backend-laqcuer
           path: distfiles
        
-      - name: Download docker-compose to distfiles folder
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-compose.yml
-          path: distfiles
+#       - name: Download docker-compose to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: docker-compose.yml
+#           path: distfiles
           
-      - name: Download Dockerfile to distfiles folder
-        uses: actions/download-artifact@v3
-        with:
-          name: Dockerfile
-          path: distfiles
+#       - name: Download Dockerfile to distfiles folder
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: Dockerfile
+#           path: distfiles
           
       - name: check files
         run: ls -la distfiles
