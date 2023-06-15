@@ -69,7 +69,7 @@ jobs:
       - name: check files
         run: ls -la distfiles
           
-      - uses: actions/checkout@v3
+#       - uses: actions/checkout@v3
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
