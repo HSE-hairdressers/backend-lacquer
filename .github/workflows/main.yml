@@ -48,6 +48,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: upload_artifacts
     steps:
+      - name: Download binary to distfiles folder
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-laqcuer
+          path: distfiles
+       
+      - name: Download docker-compose to distfiles folder
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-compose.yml
+          path: distfiles
+          
+      - name: Download Dockerfile to distfiles folder
+        uses: actions/download-artifact@v3
+        with:
+          name: Dockerfile
+          path: distfiles
+          
       - uses: actions/checkout@v3
       - name: Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@v5
@@ -56,6 +74,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           dockerfile: Dockerfile
+    
 #       - name: Download binary to distfiles folder
 #         uses: actions/download-artifact@v3
 #         with:
