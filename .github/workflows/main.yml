@@ -67,7 +67,7 @@ jobs:
           path: distfiles
           
       - name: check files
-        run: ls -la
+        run: ls -la distfiles
           
       - uses: actions/checkout@v3
       - name: Publish to Registry
